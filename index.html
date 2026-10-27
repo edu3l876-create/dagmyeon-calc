@@ -63,13 +63,22 @@ table.ev td.basis{font-size:11.5px;color:#333}
 .warnbox{margin-top:8px}
 
 @media print{
-  @page{size:A4;margin:10mm}
-  body{background:#fff;font-size:12px}
+  @page{size:A4 portrait;margin:8mm}
+  html,body{background:#fff;font-size:10px;line-height:1.25}
   header,.card,.noprint{display:none!important}
   main{padding:0;max-width:none}
-  #sheet{border:none;padding:0;overflow:visible}
-  table.ev{min-width:0;font-size:10.5px}
-  table.ev td.basis{font-size:9.5px}
+  #sheet{border:none;padding:0;overflow:visible;border-radius:0}
+  #sheet h3{font-size:16px;margin:0 0 4px}
+  .meta{font-size:10.5px;margin-bottom:4px}
+  table.ev{min-width:0;font-size:10.5px;line-height:1.25}
+  table.ev th,table.ev td{padding:2.5px 5px}
+  table.ev td.score{font-size:12.5px}
+  table.ev td.basis{font-size:9px}
+  table.ev tr,table.ev td{page-break-inside:avoid;break-inside:avoid}
+  .total{margin-top:4px;font-size:12px}
+  .total b{font-size:15px}
+  #sheet .note{font-size:8px;margin-top:2px}
+  .sign{margin-top:8px;font-size:12px}
   table.ev tr.hit td.crit,table.ev tr.hit td.pt{background:#e6e6e6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
@@ -174,6 +183,7 @@ table.ev td.basis{font-size:11.5px;color:#333}
   <div class="actions">
     <button class="primary" id="submitBtn">제출하기</button>
     <button class="ghost" id="printBtn">평가표 인쇄 / PDF 저장</button>
+    <button id="resetBtn">입력 초기화</button>
   </div>
   <div id="submitMsg"></div>
 </section>
@@ -387,6 +397,15 @@ function saveDraft(){ try{ const d={segState}; FIELDS.forEach(f=>d[f]=$(f).value
 function loadDraft(){ try{ const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null"); if(!d)return; FIELDS.forEach(f=>{ if(d[f]!==undefined)$(f).value=d[f]; }); $("tr1").checked=!!d.tr1; ["tr2","tr3"].forEach(f=>{ if(typeof d[f]!=="string")$(f).value=0; }); const o=document.querySelector(`input[name="open"][value="${d.open}"]`); if(o)o.checked=true; if(d.segState) SEG_KEYS.forEach(k=>{ if(Array.isArray(d.segState[k])&&d.segState[k].length) segState[k]=d.segState[k]; }); }catch(e){} }
 
 document.querySelectorAll("input,select").forEach(el=>{ el.addEventListener("input",update); el.addEventListener("change",update); });
+$("resetBtn").onclick=()=>{ if(!confirm("입력한 내용을 모두 지우고 처음 상태로 되돌릴까요?\n(이미 제출한 내용은 시트에 그대로 남습니다)"))return; try{localStorage.removeItem(DRAFT_KEY);}catch(e){} location.reload(); };
+function fitOnePage(){
+  const sh=$("sheet"); sh.style.zoom=""; 
+  const pageH=(297-16)*96/25.4 - 4; // A4 높이 - 여백(px)
+  const h=sh.getBoundingClientRect().height;
+  if(h>pageH) sh.style.zoom=(pageH/h).toFixed(3);
+}
+window.addEventListener("beforeprint",fitOnePage);
+window.addEventListener("afterprint",()=>{ $("sheet").style.zoom=""; });
 $("printBtn").onclick=()=>{ update(); window.print(); };
 $("submitBtn").onclick=async()=>{
   const r=update(); const msg=$("submitMsg");
