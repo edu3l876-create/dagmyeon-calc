@@ -56,7 +56,11 @@ table.ev th{background:#eef1ef;font-weight:700;text-align:center}
 table.ev td.c{text-align:center}
 table.ev tr.hit td.crit,table.ev tr.hit td.pt{background:var(--hl);font-weight:700}
 table.ev td.score{text-align:center;font-weight:700;font-size:14px}
-table.ev td.basis{font-size:11.5px;color:#333}
+table.ev{table-layout:fixed}
+table.ev col.c-area{width:8%} table.ev col.c-ind{width:10%} table.ev col.c-max{width:5%}
+table.ev col.c-crit{width:31%} table.ev col.c-pt{width:6%} table.ev col.c-sc{width:7%} table.ev col.c-basis{width:33%}
+table.ev td.basis{font-size:12px;color:#222;line-height:1.4}
+table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
 .total{display:flex;justify-content:flex-end;gap:14px;align-items:center;margin-top:10px;font-size:15px}
 .total b{font-size:20px}
 .sign{text-align:right;margin-top:18px;font-size:14px}
@@ -68,17 +72,22 @@ table.ev td.basis{font-size:11.5px;color:#333}
   header,.card,.noprint{display:none!important}
   main{padding:0;max-width:none}
   #sheet{border:none;padding:0;overflow:visible;border-radius:0}
-  #sheet h3{font-size:16px;margin:0 0 4px}
-  .meta{font-size:10.5px;margin-bottom:4px}
-  table.ev{min-width:0;font-size:10.5px;line-height:1.25}
-  table.ev th,table.ev td{padding:2.5px 5px}
-  table.ev td.score{font-size:12.5px}
-  table.ev td.basis{font-size:9px}
+  #sheet h3{font-size:17px;margin:0 0 5px}
+  .meta{font-size:11px;margin-bottom:4px}
+  table.ev{min-width:0;font-size:11px;line-height:1.25}
+  table.ev col.c-area{width:6.5%} table.ev col.c-ind{width:10.5%} table.ev col.c-max{width:5%}
+  table.ev col.c-crit{width:31%} table.ev col.c-pt{width:6%} table.ev col.c-sc{width:7%} table.ev col.c-basis{width:34%}
+  table.ev th{padding:3px 2px;font-size:11px}
+  table.ev td{padding:0 4px;height:5.95mm}
+  table.ev td.ind{padding:0 2px}
+  table.ev td.score{font-size:14px}
+  table.ev td.basis{font-size:11px;line-height:1.4;padding:3px 5px;color:#000}
+  table.ev td.basis .rmk{font-size:10px;color:#444}
   table.ev tr,table.ev td{page-break-inside:avoid;break-inside:avoid}
-  .total{margin-top:4px;font-size:12px}
-  .total b{font-size:15px}
-  #sheet .note{font-size:8px;margin-top:2px}
-  .sign{margin-top:8px;font-size:12px}
+  .total{margin-top:6px;font-size:13px}
+  .total b{font-size:17px}
+  #sheet .note{font-size:9px;margin-top:3px}
+  .sign{margin-top:10px;font-size:13px}
   table.ev tr.hit td.crit,table.ev tr.hit td.pt{background:#e6e6e6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
@@ -355,17 +364,17 @@ function renderSheet(r){
   let html=`<h3>2026학년도 옥빛중학교 다면평가(정량평가) 개인 평가표</h3>
   <div class="meta"><span>평가대상 기간: 2026. 3. 1. ~ 2027. 2. 28.</span>
   <span>근무기간: ${r.start||"-"} ~ ${r.end||"-"} (${r.days}일, 인정 ${r.months}개월)</span></div>
-  <table class="ev"><thead><tr><th style="width:12%">평가요소</th><th style="width:12%">평가지표</th><th style="width:6%">상한점</th><th>평가 기준</th><th style="width:6%">배점</th><th style="width:7%">득점</th><th style="width:26%">산출 근거</th></tr></thead><tbody>`;
+  <table class="ev"><colgroup><col class="c-area"><col class="c-ind"><col class="c-max"><col class="c-crit"><col class="c-pt"><col class="c-sc"><col class="c-basis"></colgroup><thead><tr><th>평가<br>요소</th><th>평가<br>지표</th><th>상한<br>점</th><th>평가 기준</th><th>배점</th><th>득점</th><th>산출 근거</th></tr></thead><tbody>`;
   const areaSpan={}; ORDER.forEach(k=>{ const a=CRITERIA[k].area; areaSpan[a]=(areaSpan[a]||0)+CRITERIA[k].rows.length; });
   const doneArea={};
   for(const k of ORDER){
     const c=CRITERIA[k]; const n=c.rows.length; const hit=r.hits[k]||[];
     c.rows.forEach((row,i)=>{
       html+=`<tr class="${hit.includes(i)?"hit":""}">`;
-      if(!doneArea[c.area] ){ html+=`<td class="c" rowspan="${areaSpan[c.area]}">${c.area.replace("(","<br>(")}</td>`; doneArea[c.area]=1; }
-      if(i===0){ html+=`<td class="c" rowspan="${n}">${c.name}</td><td class="c" rowspan="${n}">${c.max}</td>`; }
+      if(!doneArea[c.area] ){ html+=`<td class="c" rowspan="${areaSpan[c.area]}">${({"학습지도(30점)":"학습<br>지도<br>(30점)","생활지도(30점)":"생활<br>지도<br>(30점)","전문성개발(10점)":"전문성<br>개발<br>(10점)","담당업무(30점)":"담당<br>업무<br>(30점)"})[c.area]||c.area}</td>`; doneArea[c.area]=1; }
+      if(i===0){ html+=`<td class="c ind" rowspan="${n}">${({"수업시수":"수업<br>시수","다과목 지도":"다과목<br>지도","수업공개":"수업<br>공개","생활지도 기여도":"생활지도<br>기여도","연수 이수 시간":"연수<br>이수 시간","보직 및 담임(업무곤란도)":"보직 및<br>담임<br>(업무<br>곤란도)","동아리 운영":"동아리<br>운영","교육활동 기여도(위원회·공모사업)":"교육활동<br>기여도<br>(위원회·<br>공모사업)"})[c.name]||c.name}</td><td class="c" rowspan="${n}">${c.max}</td>`; }
       html+=`<td class="crit">${row[0]}</td><td class="c pt">${row[1]}</td>`;
-      if(i===0){ const s=r.rounded[k]; html+=`<td class="score" rowspan="${n}">${s===undefined?"-":fmtScore(s)}</td><td class="basis" rowspan="${n}">${r.basis[k]||""}${c.remark?`<br><span style="color:#777">※ ${c.remark}</span>`:""}</td>`; }
+      if(i===0){ const s=r.rounded[k]; html+=`<td class="score" rowspan="${n}">${s===undefined?"-":fmtScore(s)}</td><td class="basis" rowspan="${n}">${r.basis[k]||""}${c.remark?`<span class="rmk">※ ${c.remark}</span>`:""}</td>`; }
       html+=`</tr>`;
     });
   }
