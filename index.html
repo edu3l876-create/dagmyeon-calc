@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>옥빛중 다면평가 계산기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f6f4; --card:#ffffff; --ink:#1d2321; --muted:#5f6b66; --line:#d9dedb;
+  --accent:#1f6f5c; --accent-soft:#e3f1ec; --warn:#a4421f; --warn-soft:#fbeee8; --hl:#fff4c7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,sans-serif;font-size:15px;line-height:1.55}
+header{background:var(--accent);color:#fff;padding:22px 16px}
+header h1{margin:0;font-size:20px;font-weight:700}
+header p{margin:4px 0 0;opacity:.85;font-size:13px}
+main{max-width:960px;margin:0 auto;padding:18px 16px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:14px}
+.card h2{margin:0 0 4px;font-size:16px}
+.card .sub{margin:0 0 12px;color:var(--muted);font-size:13px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px;min-width:150px;flex:1}
+.field label{font-size:13px;color:var(--muted);font-weight:500}
+input,select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);width:100%}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.seg{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.seg select{flex:1}
+.seg input{width:90px;flex:none}
+.seg .unit{font-size:13px;color:var(--muted);flex:none}
+.seg button{flex:none}
+button{font:inherit;cursor:pointer;border-radius:6px;border:1px solid var(--line);background:#fff;padding:7px 12px;color:var(--ink)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;padding:10px 18px}
+button.ghost{color:var(--accent);border-color:var(--accent)}
+button.del{color:var(--warn);border-color:transparent;padding:6px 8px}
+.note{font-size:12.5px;color:var(--muted);margin-top:6px}
+.chk{display:flex;gap:6px;align-items:center;font-size:14px;margin:4px 0}
+.chk input{width:auto}
+.status{font-size:13px;margin-top:8px;padding:8px 10px;border-radius:6px}
+.status.ok{background:var(--accent-soft);color:var(--accent)}
+.status.bad{background:var(--warn-soft);color:var(--warn)}
+.badge{display:inline-block;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.radio{display:flex;flex-direction:column;gap:6px}
+.radio label{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--ink)}
+.radio input{width:auto}
+
+/* 평가표 */
+#sheet{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px;overflow-x:auto}
+#sheet h3{text-align:center;margin:0 0 4px;font-size:17px}
+.meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:13px;margin-bottom:8px}
+table.ev{border-collapse:collapse;width:100%;min-width:680px;font-size:12.5px}
+table.ev th,table.ev td{border:1px solid #9aa39f;padding:4px 6px;vertical-align:middle}
+table.ev th{background:#eef1ef;font-weight:700;text-align:center}
+table.ev td.c{text-align:center}
+table.ev tr.hit td.crit,table.ev tr.hit td.pt{background:var(--hl);font-weight:700}
+table.ev td.score{text-align:center;font-weight:700;font-size:14px}
+table.ev td.basis{font-size:11.5px;color:#333}
+.total{display:flex;justify-content:flex-end;gap:14px;align-items:center;margin-top:10px;font-size:15px}
+.total b{font-size:20px}
+.sign{text-align:right;margin-top:18px;font-size:14px}
+.warnbox{margin-top:8px}
+
+@media print{
+  @page{size:A4;margin:10mm}
+  body{background:#fff;font-size:12px}
+  header,.card,.noprint{display:none!important}
+  main{padding:0;max-width:none}
+  #sheet{border:none;padding:0;overflow:visible}
+  table.ev{min-width:0;font-size:10.5px}
+  table.ev td.basis{font-size:9.5px}
+  table.ev tr.hit td.crit,table.ev tr.hit td.pt{background:#e6e6e6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>2026학년도 옥빛중학교 다면평가(정량평가) 계산기</h1>
+  <p>평가대상 기간 2026. 3. 1. ~ 2027. 2. 28. · 근무 개월에 따라 월할 계산됩니다.</p>
+</header>
+<main>
+
+<section class="card">
+  <h2>1. 기본 정보</h2>
+  <p class="sub">근무 시작일과 종료일을 입력하면 인정 개월이 자동 계산됩니다. (16일 이상 1개월, 46일 이상 2개월 …)</p>
+  <div class="row">
+    <div class="field"><label for="name">성명</label><input id="name" placeholder="홍길동"></div>
+    <div class="field"><label for="group">교사 구분</label>
+      <select id="group">
+        <option value="subject">교과교사</option>
+        <option value="nonsubject">비교과교사 (진로진학·보건·상담·영양·사서)</option>
+      </select>
+    </div>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <div class="field"><label for="start">근무 시작일</label><input type="date" id="start" value="2026-03-01" min="2026-03-01" max="2027-02-28"></div>
+    <div class="field"><label for="end">근무 종료일</label><input type="date" id="end" value="2027-02-28" min="2026-03-01" max="2027-02-28"></div>
+    <div class="field" style="flex:none"><label>인정 개월</label><span class="badge" id="monthsBadge">-</span></div>
+  </div>
+  <div id="periodMsg"></div>
+</section>
+
+<section class="card">
+  <h2>2. 학습지도 · 수업시수 (상한 25점)</h2>
+  <p class="sub">주당 수업시수를 입력하세요. 담임이었던 개월에는 창체 1시간이 자동 가산됩니다.</p>
+  <div class="row">
+    <div class="field" id="hoursWrap"><label for="hours">주당 수업시수(교과)</label><input type="number" id="hours" step="0.5" min="0" max="40" placeholder="예: 18"></div>
+    <div class="field" id="avgWrap" style="display:none"><label>비교과교사 평균시수</label><input id="avgShow" disabled></div>
+    <div class="field"><label for="homeroomMonths">담임 근무 개월</label><input type="number" id="homeroomMonths" min="0" max="12" step="1" value="0"></div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>3. 학습지도 · 다과목 지도 (상한 3.5점)</h2>
+  <p class="sub">기간별로 해당 항목과 개월을 입력하세요. 개월 합계가 인정 개월과 같아야 합니다. 학기별로 다르면 두 줄로 나눠 입력합니다.</p>
+  <div id="seg-multi"></div>
+  <button class="ghost" data-add="multi">+ 기간 추가</button>
+  <p class="note">※ 평가: 지필평가와 이에 준하는 수행평가 · 1학년 1학기 주제선택/진로탐색/진로독서는 평가과목으로 인정</p>
+</section>
+
+<section class="card">
+  <h2>4. 학습지도 · 수업공개 (상한 1.5점)</h2>
+  <div class="radio" id="openRadio">
+    <label><input type="radio" name="open" value="1.5"> 교내외 수업공개(제안수업) — 1.5점</label>
+    <label><input type="radio" name="open" value="1" checked> 수업공유(학교교육계획) — 1점</label>
+  </div>
+  <p class="note">※ 복수의 수업공개가 있는 경우 상위 점수만 인정 · 비교과교사: 홈페이지에 연 6회 이상 정보 탑재 시 제안수업으로 인정</p>
+</section>
+
+<section class="card">
+  <h2>5. 생활지도 기여도 (상한 30점)</h2>
+  <p class="sub">기간별로 해당 역할과 개월을 입력하세요. 겸임 업무를 할 경우 상위 평가기준을 따릅니다(높은 점수 항목 선택).</p>
+  <div id="seg-guide"></div>
+  <button class="ghost" data-add="guide">+ 기간 추가</button>
+</section>
+
+<section class="card">
+  <h2>6. 전문성개발 · 연수 이수 시간 (상한 10점)</h2>
+  <div class="row">
+    <div class="field"><label for="training">연수 이수 시간(합계)</label><input type="number" id="training" min="0" step="1" placeholder="예: 42"></div>
+  </div>
+  <label class="chk"><input type="checkbox" id="tr1"> 연구회 3회 이상 참여 (+15시간)</label>
+  <label class="chk">교육감(장)·교육청 산하 기관장 위촉장 <input type="number" id="tr2" min="0" step="1" value="0" style="width:70px"> 장 (1장당 +15시간)</label>
+  <label class="chk">교육(지원)청·교육청 산하 기관 자료집 집필 <input type="number" id="tr3" min="0" step="1" value="0" style="width:70px"> 건 (1건당 +15시간)</label>
+</section>
+
+<section class="card">
+  <h2>7. 담당업무 · 보직 및 담임 (상한 27점)</h2>
+  <p class="sub">기간별로 해당 보직과 개월을 입력하세요. 겸임 업무를 할 경우 상위 평가기준을 따릅니다(높은 점수 항목 선택).</p>
+  <div id="seg-post"></div>
+  <button class="ghost" data-add="post">+ 기간 추가</button>
+</section>
+
+<section class="card">
+  <h2>8. 담당업무 · 동아리 운영 (상한 1.5점)</h2>
+  <p class="sub">기간별로 해당 개수와 개월을 입력하세요.</p>
+  <div id="seg-club"></div>
+  <button class="ghost" data-add="club">+ 기간 추가</button>
+  <p class="note">※ 학생지도: 교육과정동아리 / 자율동아리 / 동아리 업무 담당자 · 교사: 전학공 대표 / 각종 TF팀 / 교과 부장</p>
+</section>
+
+<section class="card">
+  <h2>9. 담당업무 · 교육활동 기여도 (상한 1.5점)</h2>
+  <div class="row">
+    <div class="field"><label for="committee">위원회(공모사업) 참여 개수</label><input type="number" id="committee" min="0" step="1" value="0"></div>
+  </div>
+  <p class="note">※ 아침 등교맞이 1개 인정 / 상조회 회장 2개, 총무 1개 인정 · 협의록 연 5회 이상 위원회 위원 및 간사 · 2026학년도 신설 공모사업 계획서·보고서 작성 제출자</p>
+</section>
+
+<section class="card">
+  <h2>10. 확인 및 제출</h2>
+  <div id="validation"></div>
+  <div class="actions">
+    <button class="primary" id="submitBtn">제출하기</button>
+    <button class="ghost" id="printBtn">평가표 인쇄 / PDF 저장</button>
+  </div>
+  <div id="submitMsg"></div>
+</section>
+
+<section id="sheet"></section>
+
+</main>
+
+<script>
+/* ================= 설정 ================= */
+// 비교과교사 평균시수: 확정되면 숫자로 입력 (예: 17.5). null이면 비교과교사는 계산/제출 불가.
+const AVG_HOURS = 18.46;
+// 구글 Apps Script 웹앱 URL (배포 후 입력)
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpA1J_1jR0ckgnRygWzuH0HBMUigQX4QXSsW6oY0hMBJ3HJPt2nO6rYhrc55XAL-9q7A/exec";
+const PERIOD_START = "2026-03-01", PERIOD_END = "2027-02-28";
+
+/* ================= 기준안 ================= */
+// prorate:true → 최저점 + Σ(등급점수-최저점)×개월/12
+const CRITERIA = {
+  hours: { area:"학습지도(30점)", name:"수업시수", max:25, floor:22, prorate:true,
+    rows:[["21시간 이상",25],["20.5시간 이상 - 21시간 미만",24.75],["20시간 이상 - 20.5시간 미만",24.5],["19.5시간 이상 - 20시간 미만",24.25],["19시간 이상 - 19.5시간 미만",24],["18.5시간 이상 - 19시간 미만",23.75],["18시간 이상 - 18.5시간 미만",23.5],["17.5시간 이상 - 18시간 미만",23.25],["17시간 이상 - 17.5시간 미만",23],["16.5시간 이상 - 17시간 미만",22.75],["16시간 이상 - 16.5시간 미만",22.5],["15.5시간 이상 - 16시간 미만",22.25],["15.5시간 미만",22]],
+    remark:"진로진학·보건·상담·영양·사서교사: 평균 시수 / 담임교사: 시수+1(창체시수)" },
+  multi: { area:"학습지도(30점)", name:"다과목 지도", max:3.5, floor:3.0, prorate:true,
+    rows:[["평가 시행 과목 2개 이상",3.5],["평가 시행 과목 1개 and 평가 미시행 과목 1개 이상",3.3],["스포츠클럽·보건·상담·영양·사서교사",3.3],["스포츠클럽(강사채용 과목 담당)",3.2],["1개 과목 지도 (위에 해당하지 않는 교사)",3.0]],
+    remark:"3.2점은 스포츠클럽 담당교사가 강사채용 과목을 담당한 경우에 한함" },
+  open: { area:"학습지도(30점)", name:"수업공개", max:1.5, prorate:false,
+    rows:[["교내외수업공개(제안수업)",1.5],["수업공유(학교교육계획)",1]],
+    remark:"복수의 수업공개는 상위 점수만 인정" },
+  guide: { area:"생활지도(30점)", name:"생활지도 기여도", max:30, floor:29, prorate:true,
+    rows:[["학년부장, 생활인권부장, 인권부 생활지도·학교폭력 담당교사, 학년부 생활지도 담당교사, 상담교사",30],["담임, 보건, 영양, 사서, 특수(총괄)",29.5],["부장, 비담임",29]],
+    remark:"겸임 업무를 할 경우 상위 평가기준을 따름" },
+  training: { area:"전문성개발(10점)", name:"연수 이수 시간", max:10, prorate:false,
+    rows:[["60시간 이상",10],["45시간 이상 - 60시간 미만",9],["30시간 이상 - 45시간 미만",8],["30시간 미만",7]],
+    remark:"연구회 3회 이상: 15시간 / 위촉장: 1장당 15시간 / 자료집 집필: 1건당 15시간 인정" },
+  post: { area:"담당업무(30점)", name:"보직 및 담임(업무곤란도)", max:27, floor:25.5, prorate:true,
+    rows:[["교무부장",27],["부장(교무 외)",26.5],["담임, 보건, 상담, 영양, 사서, 특수(총괄)",26],["비담임",25.5]],
+    remark:"겸임 업무를 할 경우 상위 평가기준을 따름" },
+  club: { area:"담당업무(30점)", name:"동아리 운영", max:1.5, floor:1.1, prorate:true,
+    rows:[["2개 이상 해당",1.5],["1개 운영",1.3],["해당하지 않음",1.1]],
+    remark:"" },
+  committee: { area:"담당업무(30점)", name:"교육활동 기여도(위원회·공모사업)", max:1.5, prorate:false,
+    rows:[["위원회(공모사업) 4개 이상 참여",1.5],["위원회(공모사업) 3개 참여",1.4],["위원회(공모사업) 2개 참여",1.3],["위원회(공모사업) 1개 참여",1.2],["위원회(공모사업) 참여 없음",1.1]],
+    remark:"" }
+};
+const ORDER = ["hours","multi","open","guide","training","post","club","committee"];
+
+/* ================= 계산 로직 ================= */
+//<calc>
+function daysBetween(a,b){ // 양 끝 포함
+  const d1=Date.UTC(+a.slice(0,4),+a.slice(5,7)-1,+a.slice(8,10));
+  const d2=Date.UTC(+b.slice(0,4),+b.slice(5,7)-1,+b.slice(8,10));
+  return Math.round((d2-d1)/86400000)+1;
+}
+// 16일 이상 1개월, 46일 이상 2개월 … (30일 단위), 최대 12개월
+function monthsFromDays(days){
+  if(days<16) return 0;
+  return Math.min(12, Math.floor((days-16)/30)+1);
+}
+function hoursRowIndex(h){
+  if(h>=21) return 0;
+  if(h<15.5) return 12;
+  return 11-Math.floor((h-15.5)/0.5);
+}
+function round2(x){ return Math.round((x+1e-9)*100)/100; }
+// segs: [{idx, months}] ; 미근무 개월은 최저점
+function prorate(key, segs){
+  const c=CRITERIA[key]; let add=0;
+  for(const s of segs){ add += (c.rows[s.idx][1]-c.floor)*s.months/12; }
+  return Math.min(c.max, c.floor+add);
+}
+function trainingRow(total){ return total>=60?0: total>=45?1: total>=30?2: 3; }
+function committeeRow(n){ return n>=4?0: n===3?1: n===2?2: n===1?3: 4; }
+//</calc>
+
+/* ================= 화면 ================= */
+const $=id=>document.getElementById(id);
+const SEG_KEYS=["multi","guide","post","club"];
+const segState={ multi:[{idx:4,months:12}], guide:[{idx:2,months:12}], post:[{idx:3,months:12}], club:[{idx:2,months:12}] };
+
+function renderSegs(key){
+  const box=$("seg-"+key); box.innerHTML="";
+  segState[key].forEach((s,i)=>{
+    const div=document.createElement("div"); div.className="seg";
+    const sel=document.createElement("select");
+    CRITERIA[key].rows.forEach((r,ri)=>{ const o=document.createElement("option"); o.value=ri; o.textContent=`${r[0]} (${r[1]}점)`; if(ri===s.idx)o.selected=true; sel.appendChild(o); });
+    sel.onchange=()=>{ s.idx=+sel.value; update(); };
+    const inp=document.createElement("input"); inp.type="number"; inp.min=0; inp.max=12; inp.step=1; inp.value=s.months;
+    inp.oninput=()=>{ s.months=Math.max(0,Math.floor(+inp.value||0)); update(); };
+    const unit=document.createElement("span"); unit.className="unit"; unit.textContent="개월";
+    div.append(sel,inp,unit);
+    if(segState[key].length>1){ const del=document.createElement("button"); del.className="del"; del.textContent="삭제"; del.onclick=()=>{ segState[key].splice(i,1); renderSegs(key); update(); }; div.append(del); }
+    box.appendChild(div);
+  });
+}
+document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{ const k=b.dataset.add; const last=segState[k][segState[k].length-1]; segState[k].push({idx:last?last.idx:0,months:0}); renderSegs(k); update(); });
+
+function fmt(x){ return (Math.round(x*100)/100).toFixed(2).replace(/\.?0+$/,""); }
+function fmtScore(x){ return x.toFixed(2); }
+
+function compute(){
+  const errors=[], warns=[];
+  const name=$("name").value.trim();
+  const group=$("group").value;
+  const start=$("start").value, end=$("end").value;
+  let days=0, months=0;
+  if(!start||!end) errors.push("근무 시작일과 종료일을 입력하세요.");
+  else if(start<PERIOD_START||end>PERIOD_END) errors.push("근무 기간은 2026. 3. 1. ~ 2027. 2. 28. 사이여야 합니다.");
+  else if(end<start) errors.push("종료일이 시작일보다 빠릅니다.");
+  else { days=daysBetween(start,end); months=monthsFromDays(days); }
+  if(months>0 && months<2) errors.push(`인정 개월이 ${months}개월로, 2개월 이상 근무자만 평가 대상입니다.`);
+  if(!name) errors.push("성명을 입력하세요.");
+
+  const res={}; const basis={}; const hits={};
+
+  // 수업시수
+  let h=null;
+  if(group==="nonsubject"){ if(AVG_HOURS===null) errors.push("비교과교사 평균시수가 아직 확정되지 않아 계산할 수 없습니다. (관리자 설정 필요)"); else h=AVG_HOURS; }
+  else { const v=$("hours").value; if(v==="") errors.push("주당 수업시수를 입력하세요."); else h=+v; }
+  let hm=Math.floor(+$("homeroomMonths").value||0);
+  if(hm>months) errors.push(`담임 근무 개월(${hm})이 인정 개월(${months})보다 많습니다.`);
+  if(h!==null && months>0){
+    hm=Math.min(hm,months);
+    const iH=hoursRowIndex(h+1), iN=hoursRowIndex(h);
+    const segs=[]; if(hm>0) segs.push({idx:iH,months:hm}); if(months-hm>0) segs.push({idx:iN,months:months-hm});
+    res.hours=prorate("hours",segs);
+    hits.hours=segs.map(s=>s.idx);
+    basis.hours=`${h}시간${group==="nonsubject"?"(평균)":""}` + segs.map(s=>{ const r=CRITERIA.hours.rows[s.idx]; return s.idx===iH&&hm>0?` / 담임 ${s.months}개월: ${h+1}시간→${r[1]}`:` / ${s.months}개월: ${h}시간→${r[1]}`; }).join("") + ` → 22 + ` + segs.map(s=>`${fmt(CRITERIA.hours.rows[s.idx][1]-22)}×${s.months}`).join(" + ") + `/12`;
+  }
+
+  // 구간형 월할 항목
+  for(const k of SEG_KEYS){
+    const segs=segState[k].filter(s=>s.months>0);
+    const sum=segs.reduce((a,s)=>a+s.months,0);
+    if(months>0 && sum!==months) errors.push(`${CRITERIA[k].name}: 입력한 개월 합계(${sum})가 인정 개월(${months})과 다릅니다.`);
+    if(months>0){
+      res[k]=prorate(k,segs); hits[k]=segs.map(s=>s.idx);
+      const c=CRITERIA[k];
+      basis[k]=segs.map(s=>`${c.rows[s.idx][1]}×${s.months}개월`).join(", ") + (months<12?`, 미근무 ${12-months}개월(최저점)`:"") + ` → ${fmt(c.floor)} + (` + segs.map(s=>`${fmt(c.rows[s.idx][1]-c.floor)}×${s.months}`).join(" + ") + `)/12`;
+    }
+  }
+
+  // 수업공개
+  const openV=+document.querySelector('input[name="open"]:checked').value;
+  res.open=openV; hits.open=[openV===1.5?0:1]; basis.open="실적 기준(월할 없음)";
+
+  // 연수
+  const trBase=Math.max(0,+$("training").value||0);
+  const certN=Math.max(0,Math.floor(+$("tr2").value||0));
+  const bookN=Math.max(0,Math.floor(+$("tr3").value||0));
+  const extra=(($("tr1").checked?1:0)+certN+bookN)*15;
+  const trTotal=trBase+extra; const ti=trainingRow(trTotal);
+  res.training=CRITERIA.training.rows[ti][1]; hits.training=[ti];
+  basis.training=`이수 ${trBase}시간${extra?` + 인정 ${extra}시간`:""} = ${trTotal}시간`;
+
+  // 위원회
+  const cn=Math.max(0,Math.floor(+$("committee").value||0)); const ci=committeeRow(cn);
+  res.committee=CRITERIA.committee.rows[ci][1]; hits.committee=[ci];
+  basis.committee=`${cn}개 참여`;
+
+  const rounded={}; let total=0;
+  for(const k of ORDER){ if(res[k]!==undefined){ rounded[k]=round2(res[k]); total+=rounded[k]; } }
+  total=round2(total);
+  const complete=ORDER.every(k=>rounded[k]!==undefined);
+  return {name,group,start,end,days,months,hours:h,homeroomMonths:hm,rounded,basis,hits,total,complete,errors,warns,
+    training:{base:trBase,extra,total:trTotal}, committee:cn, segs:JSON.parse(JSON.stringify(segState))};
+}
+
+function renderSheet(r){
+  let html=`<h3>2026학년도 옥빛중학교 다면평가(정량평가) 개인 평가표</h3>
+  <div class="meta"><span>평가대상 기간: 2026. 3. 1. ~ 2027. 2. 28.</span>
+  <span>근무기간: ${r.start||"-"} ~ ${r.end||"-"} (${r.days}일, 인정 ${r.months}개월)</span></div>
+  <table class="ev"><thead><tr><th style="width:12%">평가요소</th><th style="width:12%">평가지표</th><th style="width:6%">상한점</th><th>평가 기준</th><th style="width:6%">배점</th><th style="width:7%">득점</th><th style="width:26%">산출 근거</th></tr></thead><tbody>`;
+  const areaSpan={}; ORDER.forEach(k=>{ const a=CRITERIA[k].area; areaSpan[a]=(areaSpan[a]||0)+CRITERIA[k].rows.length; });
+  const doneArea={};
+  for(const k of ORDER){
+    const c=CRITERIA[k]; const n=c.rows.length; const hit=r.hits[k]||[];
+    c.rows.forEach((row,i)=>{
+      html+=`<tr class="${hit.includes(i)?"hit":""}">`;
+      if(!doneArea[c.area] ){ html+=`<td class="c" rowspan="${areaSpan[c.area]}">${c.area.replace("(","<br>(")}</td>`; doneArea[c.area]=1; }
+      if(i===0){ html+=`<td class="c" rowspan="${n}">${c.name}</td><td class="c" rowspan="${n}">${c.max}</td>`; }
+      html+=`<td class="crit">${row[0]}</td><td class="c pt">${row[1]}</td>`;
+      if(i===0){ const s=r.rounded[k]; html+=`<td class="score" rowspan="${n}">${s===undefined?"-":fmtScore(s)}</td><td class="basis" rowspan="${n}">${r.basis[k]||""}${c.remark?`<br><span style="color:#777">※ ${c.remark}</span>`:""}</td>`; }
+      html+=`</tr>`;
+    });
+  }
+  html+=`</tbody></table>
+  <div class="total"><span>총점 (100점 만점)</span><b>${r.complete?fmtScore(r.total):"-"}</b></div>
+  <p class="note">※ 월할 항목: 최저점 + Σ(해당 배점 − 최저점) × 개월 ÷ 12 (미근무 개월은 최저점). 항목별 소수 셋째 자리에서 반올림.</p>
+  <div class="sign">성명: <b>${r.name||"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"}</b> &nbsp;&nbsp;(인)</div>`;
+  $("sheet").innerHTML=html;
+}
+
+function update(){
+  const g=$("group").value;
+  $("hoursWrap").style.display=g==="subject"?"":"none";
+  $("avgWrap").style.display=g==="nonsubject"?"":"none";
+  $("avgShow").value=AVG_HOURS===null?"미확정":AVG_HOURS+"시간";
+  const r=compute();
+  $("monthsBadge").textContent=r.months?`${r.months}개월 (${r.days}일)`:"-";
+  $("periodMsg").innerHTML="";
+  $("validation").innerHTML=r.errors.length?`<div class="status bad">${r.errors.map(e=>"• "+e).join("<br>")}</div>`:`<div class="status ok">입력이 완료되었습니다. 총점 ${fmtScore(r.total)}점</div>`;
+  renderSheet(r);
+  saveDraft();
+  return r;
+}
+
+/* 임시 저장 (이 브라우저에만) */
+const DRAFT_KEY="okbit-dagmyeon-2026";
+const FIELDS=["name","group","start","end","hours","homeroomMonths","training","committee","tr2","tr3"];
+function saveDraft(){ try{ const d={segState}; FIELDS.forEach(f=>d[f]=$(f).value); d.tr1=$("tr1").checked; d.open=document.querySelector('input[name="open"]:checked').value; localStorage.setItem(DRAFT_KEY,JSON.stringify(d)); }catch(e){} }
+function loadDraft(){ try{ const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null"); if(!d)return; FIELDS.forEach(f=>{ if(d[f]!==undefined)$(f).value=d[f]; }); $("tr1").checked=!!d.tr1; ["tr2","tr3"].forEach(f=>{ if(typeof d[f]!=="string")$(f).value=0; }); const o=document.querySelector(`input[name="open"][value="${d.open}"]`); if(o)o.checked=true; if(d.segState) SEG_KEYS.forEach(k=>{ if(Array.isArray(d.segState[k])&&d.segState[k].length) segState[k]=d.segState[k]; }); }catch(e){} }
+
+document.querySelectorAll("input,select").forEach(el=>{ el.addEventListener("input",update); el.addEventListener("change",update); });
+$("printBtn").onclick=()=>{ update(); window.print(); };
+$("submitBtn").onclick=async()=>{
+  const r=update(); const msg=$("submitMsg");
+  if(r.errors.length){ msg.innerHTML=`<div class="status bad">입력 오류를 먼저 해결하세요.</div>`; return; }
+  if(!SCRIPT_URL){ msg.innerHTML=`<div class="status bad">제출 주소가 설정되지 않았습니다. 관리자에게 문의하세요.</div>`; return; }
+  if(!confirm(`${r.name} 선생님, 총점 ${fmtScore(r.total)}점으로 제출합니다.\n같은 이름으로 다시 제출하면 기존 제출 내용이 덮어쓰기 됩니다.`)) return;
+  const payload={name:r.name,group:r.group==="subject"?"교과":"비교과",start:r.start,end:r.end,days:r.days,months:r.months,
+    hours:r.hours,homeroomMonths:r.homeroomMonths,scores:r.rounded,total:r.total,basis:r.basis,
+    detail:{segs:r.segs,training:r.training,committee:r.committee,open:r.rounded.open}};
+  $("submitBtn").disabled=true; msg.innerHTML=`<div class="status ok">제출 중…</div>`;
+  try{
+    const resp=await fetch(SCRIPT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
+    const j=await resp.json();
+    if(j.ok) msg.innerHTML=`<div class="status ok">제출되었습니다 (${j.mode==="updated"?"기존 제출 수정":"신규 제출"}). 평가표를 인쇄하여 서명 후 제출해 주세요.</div>`;
+    else throw new Error(j.error||"알 수 없는 오류");
+  }catch(e){ msg.innerHTML=`<div class="status bad">제출 실패: ${e.message}</div>`; }
+  $("submitBtn").disabled=false;
+};
+
+loadDraft();
+SEG_KEYS.forEach(renderSegs);
+update();
+</script>
+</body>
+</html>
