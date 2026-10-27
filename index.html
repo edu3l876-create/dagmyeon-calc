@@ -109,8 +109,9 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
     <div class="field"><label for="name">성명</label><input id="name" placeholder="홍길동"></div>
     <div class="field"><label for="group">교사 구분</label>
       <select id="group">
-        <option value="subject">교과교사</option>
-        <option value="nonsubject">비교과교사 (진로진학·보건·상담·영양·사서)</option>
+        <option value="subject">교과교사 (특수교사 포함)</option>
+        <option value="career">진로진학상담교사</option>
+        <option value="nonsubject">비교과교사 (보건·영양·사서·전문상담)</option>
       </select>
     </div>
   </div>
@@ -126,17 +127,18 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
   <h2>2. 학습지도 · 수업시수 (상한 25점)</h2>
   <p class="sub">주당 수업시수를 입력하세요. 담임이었던 개월에는 창체 1시간이 자동 가산됩니다.</p>
   <div class="row">
-    <div class="field" id="hoursWrap"><label for="hours">주당 수업시수(교과)</label><input type="number" id="hours" step="0.5" min="0" max="40" placeholder="예: 18"></div>
-    <div class="field" id="avgWrap" style="display:none"><label>비교과교사 평균시수</label><input id="avgShow" disabled></div>
+    <div class="field"><label for="hours">주당 수업시수</label><input type="number" id="hours" step="0.01" min="0" max="40" placeholder="예: 18"></div>
     <div class="field"><label for="homeroomMonths">담임 근무 개월</label><input type="number" id="homeroomMonths" min="0" max="12" step="1" value="0"></div>
   </div>
+  <p class="note">※ 진로진학·보건·상담·영양·사서교사: 평균 시수 (2026학년도 평균 시수 18.46시간) · 담임교사: 시수 + 1(창체시수)</p>
 </section>
 
 <section class="card">
   <h2>3. 학습지도 · 다과목 지도 (상한 3.5점)</h2>
   <p class="sub">기간별로 해당 항목과 개월을 입력하세요. 개월 합계가 인정 개월과 같아야 합니다. 학기별로 다르면 두 줄로 나눠 입력합니다.</p>
-  <div id="seg-multi"></div>
-  <button class="ghost" data-add="multi">+ 기간 추가</button>
+  <div id="multiLock" class="status ok" style="display:none">비교과교사(보건·영양·사서·전문상담)는 기준안에 따라 3.3점이 자동 적용됩니다.</div>
+  <div id="multiEdit"><div id="seg-multi"></div>
+  <button class="ghost" data-add="multi">+ 기간 추가</button></div>
   <p class="note">※ 평가: 지필평가와 이에 준하는 수행평가 · 1학년 1학기 주제선택/진로탐색/진로독서는 평가과목으로 인정</p>
 </section>
 
@@ -206,10 +208,11 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
 
 <script>
 /* ================= 설정 ================= */
-// 비교과교사 평균시수: 확정되면 숫자로 입력 (예: 17.5). null이면 비교과교사는 계산/제출 불가.
-const AVG_HOURS = 18.46;
 // 구글 Apps Script 웹앱 URL (배포 후 입력)
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpA1J_1jR0ckgnRygWzuH0HBMUigQX4QXSsW6oY0hMBJ3HJPt2nO6rYhrc55XAL-9q7A/exec";
+// 진로진학·보건·상담·영양·사서교사 평균 수업시수 (2026학년도)
+const AVG_HOURS = 18.46;
+const GROUP_LABEL={subject:"교과",career:"진로진학",nonsubject:"비교과(교육지원청)"};
 const PERIOD_START = "2026-03-01", PERIOD_END = "2027-02-28";
 
 /* ================= 기준안 ================= */
@@ -306,7 +309,6 @@ function fmtScore(x){ return x.toFixed(2); }
 function compute(){
   const errors=[], warns=[];
   const name=$("name").value.trim();
-  const group=$("group").value;
   const start=$("start").value, end=$("end").value;
   let days=0, months=0;
   if(!start||!end) errors.push("근무 시작일과 종료일을 입력하세요.");
@@ -322,7 +324,8 @@ function compute(){
 
   // 수업시수
   let h=null;
-  if(group==="nonsubject"){ if(AVG_HOURS===null) errors.push("비교과교사 평균시수가 아직 확정되지 않아 계산할 수 없습니다. (관리자 설정 필요)"); else h=AVG_HOURS; }
+  const group=$("group").value;
+  if(group!=="subject") h=AVG_HOURS;
   else { const v=$("hours").value; if(v==="") errors.push("주당 수업시수를 입력하세요."); else h=+v; }
   let hm=Math.floor(+$("homeroomMonths").value||0);
   if(hm>months) errors.push(`담임 근무 개월(${hm})이 인정 개월(${months})보다 많습니다.`);
@@ -332,12 +335,12 @@ function compute(){
     const segs=[]; if(hm>0) segs.push({idx:iH,months:hm}); if(months-hm>0) segs.push({idx:iN,months:months-hm});
     res.hours=prorate("hours",segs);
     hits.hours=segs.map(s=>s.idx);
-    basis.hours=`${h}시간${group==="nonsubject"?"(평균)":""}` + segs.map(s=>{ const r=CRITERIA.hours.rows[s.idx]; return s.idx===iH&&hm>0?` / 담임 ${s.months}개월: ${h+1}시간→${r[1]}`:` / ${s.months}개월: ${h}시간→${r[1]}`; }).join("") + (segs.length>1?` → (` + segs.map(s=>`${CRITERIA.hours.rows[s.idx][1]}×${s.months}`).join(" + ") + `) ÷ ${months}`:"");
+    basis.hours=`${h}시간${group!=="subject"?"(평균 시수)":""}` + segs.map(s=>{ const r=CRITERIA.hours.rows[s.idx]; return s.idx===iH&&hm>0?` / 담임 ${s.months}개월: ${h+1}시간→${r[1]}`:` / ${s.months}개월: ${h}시간→${r[1]}`; }).join("") + (segs.length>1?` → (` + segs.map(s=>`${CRITERIA.hours.rows[s.idx][1]}×${s.months}`).join(" + ") + `) ÷ ${months}`:"");
   }
 
   // 구간형 항목 (겸임·역할 변경 시 가중평균)
   for(const k of SEG_KEYS){
-    const segs=segState[k].filter(s=>s.months>0);
+    const segs=(k==="multi"&&group==="nonsubject") ? (months>0?[{idx:2,months}]:[]) : segState[k].filter(s=>s.months>0);
     const sum=segs.reduce((a,s)=>a+s.months,0);
     if(months>0 && sum!==months) errors.push(`${CRITERIA[k].name}: 입력한 개월 합계(${sum})가 인정 개월(${months})과 다릅니다.`);
     if(months>0){
@@ -400,9 +403,9 @@ function renderSheet(r){
 
 function update(){
   const g=$("group").value;
-  $("hoursWrap").style.display=g==="subject"?"":"none";
-  $("avgWrap").style.display=g==="nonsubject"?"":"none";
-  $("avgShow").value=AVG_HOURS===null?"미확정":AVG_HOURS+"시간";
+  if(g!=="subject"){ $("hours").value=AVG_HOURS; $("hours").disabled=true; } else if($("hours").disabled){ $("hours").disabled=false; $("hours").value=""; }
+  $("multiLock").style.display=g==="nonsubject"?"":"none";
+  $("multiEdit").style.display=g==="nonsubject"?"none":"";
   const r=compute();
   $("monthsBadge").textContent=r.months?`${r.months}개월 (${r.days}일)`:"-";
   $("periodMsg").innerHTML="";
@@ -426,7 +429,7 @@ $("submitBtn").onclick=async()=>{
   if(r.errors.length){ msg.innerHTML=`<div class="status bad">입력 오류를 먼저 해결하세요.</div>`; return; }
   if(!SCRIPT_URL){ msg.innerHTML=`<div class="status bad">제출 주소가 설정되지 않았습니다. 관리자에게 문의하세요.</div>`; return; }
   if(!confirm(`${r.name} 선생님, 총점 ${fmtScore(r.total)}점으로 제출합니다.\n같은 이름으로 다시 제출하면 기존 제출 내용이 덮어쓰기 됩니다.`)) return;
-  const payload={name:r.name,group:r.group==="subject"?"교과":"비교과",start:r.start,end:r.end,days:r.days,months:r.months,
+  const payload={name:r.name,group:GROUP_LABEL[r.group],start:r.start,end:r.end,days:r.days,months:r.months,
     hours:r.hours,homeroomMonths:r.homeroomMonths,scores:r.rounded,total:r.total,basis:r.basis,
     detail:{segs:r.segs,training:r.training,committee:r.committee,open:r.rounded.open}};
   $("submitBtn").disabled=true; msg.innerHTML=`<div class="status ok">제출 중…</div>`;
