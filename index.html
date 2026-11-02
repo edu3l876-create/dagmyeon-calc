@@ -134,9 +134,18 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
 <section class="card">
   <h2>가. 수업시수 (상한 25점)</h2>
   <p class="sub">주당 수업시수를 입력하세요. 담임이었던 개월에는 창체 1시간이 자동 가산됩니다.</p>
+  <label class="chk" id="splitWrap"><input type="checkbox" id="hoursSplit"> 1학기와 2학기 시수가 다름</label>
   <div class="row">
-    <div class="field"><label for="hours">주당 수업시수</label><input type="number" id="hours" step="0.01" min="0" max="40" placeholder="예: 18"></div>
-    <div class="field"><label for="homeroomMonths">담임 근무 개월</label><input type="number" id="homeroomMonths" min="0" max="12" step="1" value="0"></div>
+    <div class="field" id="hoursOne"><label for="hours">주당 수업시수</label><input type="number" id="hours" step="0.01" min="0" max="40" placeholder="예: 18"></div>
+    <div class="field" id="hmOne"><label for="homeroomMonths">담임 근무 개월</label><input type="number" id="homeroomMonths" min="0" max="12" step="1" value="0"></div>
+  </div>
+  <div class="row" id="semRow1" style="display:none">
+    <div class="field"><label for="hours1">1학기 주당 수업시수</label><input type="number" id="hours1" step="0.01" min="0" max="40" placeholder="예: 19"></div>
+    <div class="field"><label for="hm1">1학기 담임 개월 <span id="m1Max"></span></label><input type="number" id="hm1" min="0" max="6" step="1" value="0"></div>
+  </div>
+  <div class="row" id="semRow2" style="display:none;margin-top:8px">
+    <div class="field"><label for="hours2">2학기 주당 수업시수</label><input type="number" id="hours2" step="0.01" min="0" max="40" placeholder="예: 18"></div>
+    <div class="field"><label for="hm2">2학기 담임 개월 <span id="m2Max"></span></label><input type="number" id="hm2" min="0" max="6" step="1" value="0"></div>
   </div>
   <p class="note">※ 진로진학·보건·상담·영양·사서교사: 평균 시수 (2026학년도 평균 시수 18.46시간) · 담임교사: 시수 + 1(창체시수)</p>
 </section>
@@ -390,19 +399,33 @@ function compute(){
   const res={}; const basis={}; const hits={};
 
   // 수업시수
-  let h=null;
+  let h=null, hm=0, hoursOut=null;
   const group=$("group").value;
-  if(group!=="subject") h=AVG_HOURS;
-  else { const v=$("hours").value; if(v==="") errors.push("주당 수업시수를 입력하세요."); else h=+v; }
-  let hm=Math.floor(+$("homeroomMonths").value||0);
-  if(hm>months) errors.push(`담임 근무 개월(${hm})이 인정 개월(${months})보다 많습니다.`);
-  if(h!==null && months>0){
-    hm=Math.min(hm,months);
-    const iH=hoursRowIndex(h+1), iN=hoursRowIndex(h);
-    const segs=[]; if(hm>0) segs.push({idx:iH,months:hm}); if(months-hm>0) segs.push({idx:iN,months:months-hm});
-    res.hours=prorate("hours",segs);
-    hits.hours=segs.map(s=>s.idx);
-    basis.hours=`${h}시간${group!=="subject"?"(평균 시수)":""}` + segs.map(s=>{ const r=CRITERIA.hours.rows[s.idx]; return s.idx===iH&&hm>0?` / 담임 ${s.months}개월: ${h+1}시간→${r[1]}`:` / ${s.months}개월: ${h}시간→${r[1]}`; }).join("") + (segs.length>1?` → (` + segs.map(s=>`${CRITERIA.hours.rows[s.idx][1]}×${s.months}`).join(" + ") + `) ÷ ${months}`:"");
+  const split=group==="subject" && $("hoursSplit").checked;
+  const HR=CRITERIA.hours.rows;
+  // 한 구간(시수 h, 그 기간 개월 m, 그중 담임 hmk)의 세그먼트
+  const hSegs=(hv,m,hmk,lab)=>{ const out=[]; if(hmk>0) out.push({idx:hoursRowIndex(hv+1),months:hmk,txt:`${lab}담임 ${hmk}개월: ${fmt(hv)}+1시간 → ${HR[hoursRowIndex(hv+1)][1]}`}); if(m-hmk>0) out.push({idx:hoursRowIndex(hv),months:m-hmk,txt:`${lab}${hmk>0?"비담임 ":""}${m-hmk}개월: ${fmt(hv)}시간 → ${HR[hoursRowIndex(hv)][1]}`}); return out; };
+  let hsegs=null;
+  if(!split){
+    if(group!=="subject") h=AVG_HOURS;
+    else { const v=$("hours").value; if(v==="") errors.push("주당 수업시수를 입력하세요."); else h=+v; }
+    hm=Math.floor(+$("homeroomMonths").value||0);
+    if(hm>months) errors.push(`담임 근무 개월(${hm})이 인정 개월(${months})보다 많습니다.`);
+    if(h!==null && months>0){ hm=Math.min(hm,months); hsegs=hSegs(h,months,hm,""); hoursOut=h; }
+  } else if(months>0){
+    const {m1,m2}=termMonths(start,end); let ok=true; const parts=[]; hsegs=[];
+    [[1,m1,"hours1","hm1"],[2,m2,"hours2","hm2"]].forEach(([t,m,hk,mk])=>{ if(m<=0) return;
+      let hmk=Math.floor(+$(mk).value||0);
+      if(hmk>m){ errors.push(`${t}학기 담임 개월(${hmk})이 ${t}학기 근무 개월(${m})보다 많습니다.`); hmk=m; }
+      const v=$(hk).value; if(v===""){ errors.push(`${t}학기 주당 수업시수를 입력하세요.`); ok=false; return; }
+      const hv=+v; hm+=hmk; parts.push(`${t}학기 ${fmt(hv)}`); hsegs.push(...hSegs(hv,m,hmk,`${t}학기 `)); });
+    if(!ok) hsegs=null; else hoursOut=parts.join(" / ");
+  }
+  if(hsegs&&hsegs.length){
+    const den=hsegs.reduce((a,x)=>a+x.months,0);
+    res.hours=prorate("hours",hsegs); hits.hours=[...new Set(hsegs.map(x=>x.idx))];
+    basis.hours=(group!=="subject"?`평균 시수 ${fmt(h)}시간 / `:"")+hsegs.map(x=>x.txt).join(" / ")
+      +(hsegs.length>1&&new Set(hsegs.map(x=>x.idx)).size>1?` → (${hsegs.map(x=>`${HR[x.idx][1]}×${x.months}`).join(" + ")}) ÷ ${den}`:"");
   }
 
   // 구간형 항목 (겸임·역할 변경 시 가중평균)
@@ -464,7 +487,7 @@ function compute(){
   for(const k of ORDER){ if(res[k]!==undefined){ rounded[k]=round2(res[k]); total+=rounded[k]; } }
   total=round2(total);
   const complete=ORDER.every(k=>rounded[k]!==undefined);
-  return {name,group,start,end,days,months,hours:h,homeroomMonths:hm,rounded,basis,hits,total,complete,errors,warns,
+  return {name,group,start,end,days,months,hours:hoursOut,homeroomMonths:hm,rounded,basis,hits,total,complete,errors,warns,
     training:{base:trBase,research:$("tr1").checked,cert:certN,book:bookN,extra,total:trTotal}, committee:cn, segs:JSON.parse(JSON.stringify(segState)),
     clubs:JSON.parse(JSON.stringify(clubs)), coms:JSON.parse(JSON.stringify(coms))};
 }
@@ -496,7 +519,10 @@ function renderSheet(r){
 
 function update(){
   const g=$("group").value;
-  if(g!=="subject"){ $("hours").value=AVG_HOURS; $("hours").disabled=true; } else if($("hours").disabled){ $("hours").disabled=false; $("hours").value=""; }
+  if(g!=="subject"){ $("hours").value=AVG_HOURS; $("hours").disabled=true; $("hoursSplit").checked=false; } else if($("hours").disabled){ $("hours").disabled=false; $("hours").value=""; }
+  $("splitWrap").style.display=g==="subject"?"":"none";
+  const sp=g==="subject"&&$("hoursSplit").checked; $("hoursOne").style.display=sp?"none":""; $("hmOne").style.display=sp?"none":"";
+  { let a=sp,b=sp; const st=$("start").value, en=$("end").value; if(sp&&st&&en&&en>=st){ const {m1,m2}=termMonths(st,en); a=m1>0; b=m2>0; $("m1Max").textContent=`(최대 ${m1})`; $("m2Max").textContent=`(최대 ${m2})`; } $("semRow1").style.display=a?"":"none"; $("semRow2").style.display=b?"":"none"; }
   $("multiLock").style.display=g==="nonsubject"?"":"none";
   $("multiEdit").style.display=g==="nonsubject"?"none":"";
   const r=compute();
@@ -512,9 +538,9 @@ function update(){
 
 /* 임시 저장 (이 브라우저에만) */
 const DRAFT_KEY="okbit-dagmyeon-2026";
-const FIELDS=["name","group","start","end","hours","homeroomMonths","training","tr2","tr3"];
-function saveDraft(){ try{ const d={segState,clubs,coms}; FIELDS.forEach(f=>d[f]=$(f).value); d.tr1=$("tr1").checked; d.open=document.querySelector('input[name="open"]:checked').value; localStorage.setItem(DRAFT_KEY,JSON.stringify(d)); }catch(e){} }
-function loadDraft(){ try{ const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null"); if(!d)return; FIELDS.forEach(f=>{ if(d[f]!==undefined)$(f).value=d[f]; }); $("tr1").checked=!!d.tr1; ["tr2","tr3"].forEach(f=>{ if(typeof d[f]!=="string")$(f).value=0; }); const o=document.querySelector(`input[name="open"][value="${d.open}"]`); if(o)o.checked=true; if(d.segState) SEG_KEYS.forEach(k=>{ if(Array.isArray(d.segState[k])&&d.segState[k].length) segState[k]=d.segState[k]; }); if(Array.isArray(d.clubs)) clubs=d.clubs; if(Array.isArray(d.coms)) coms=d.coms; }catch(e){} }
+const FIELDS=["name","group","start","end","hours","homeroomMonths","hours1","hours2","hm1","hm2","training","tr2","tr3"];
+function saveDraft(){ try{ const d={segState,clubs,coms}; FIELDS.forEach(f=>d[f]=$(f).value); d.tr1=$("tr1").checked; d.hoursSplit=$("hoursSplit").checked; d.open=document.querySelector('input[name="open"]:checked').value; localStorage.setItem(DRAFT_KEY,JSON.stringify(d)); }catch(e){} }
+function loadDraft(){ try{ const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null"); if(!d)return; FIELDS.forEach(f=>{ if(d[f]!==undefined)$(f).value=d[f]; }); $("tr1").checked=!!d.tr1; $("hoursSplit").checked=!!d.hoursSplit; ["tr2","tr3"].forEach(f=>{ if(typeof d[f]!=="string")$(f).value=0; }); const o=document.querySelector(`input[name="open"][value="${d.open}"]`); if(o)o.checked=true; if(d.segState) SEG_KEYS.forEach(k=>{ if(Array.isArray(d.segState[k])&&d.segState[k].length) segState[k]=d.segState[k]; }); if(Array.isArray(d.clubs)) clubs=d.clubs; if(Array.isArray(d.coms)) coms=d.coms; }catch(e){} }
 
 document.querySelectorAll("input,select").forEach(el=>{ el.addEventListener("input",update); el.addEventListener("change",update); });
 $("resetBtn").onclick=()=>{ if(!confirm("입력한 내용을 모두 지우고 처음 상태로 되돌릴까요?\n(이미 제출한 내용은 시트에 그대로 남습니다)"))return; try{localStorage.removeItem(DRAFT_KEY);}catch(e){} location.reload(); };
