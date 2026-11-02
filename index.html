@@ -65,11 +65,18 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
 .total b{font-size:20px}
 .sign{text-align:right;margin-top:18px;font-size:14px}
 .warnbox{margin-top:8px}
+.area{margin:22px 0 8px;font-size:17px;font-weight:700;color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:4px}
+.item{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.item select{flex:1 1 200px;width:auto}
+.item input{flex:1 1 160px;width:auto}
+.item select.term{flex:0 0 96px}
+.item button{flex:none}
+.cnt{font-size:13px;margin-top:4px;color:var(--accent);font-weight:700}
 
 @media print{
   @page{size:A4 portrait;margin:10mm 9mm 8mm 9mm}
   html,body{background:#fff;font-size:10px;line-height:1.25}
-  header,.card,.noprint{display:none!important}
+  header,.card,.area,.noprint{display:none!important}
   main{padding:0;max-width:none}
   main{margin:0!important;width:100%!important}
   #sheet{border:none;padding:0;overflow:visible;border-radius:0;width:100%;margin:0 auto;zoom:1!important}
@@ -103,7 +110,7 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
 <main>
 
 <section class="card">
-  <h2>1. 기본 정보</h2>
+  <h2>기본 정보</h2>
   <p class="sub">근무 시작일과 종료일을 입력하면 인정 개월이 자동 계산됩니다. (16일 이상 1개월, 46일 이상 2개월 …) 평가 대상 여부는 지침에 따라 역(曆)에 의한 2개월 이상 실근무로 판단합니다.</p>
   <div class="row">
     <div class="field"><label for="name">성명</label><input id="name" placeholder="홍길동"></div>
@@ -123,8 +130,9 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
   <div id="periodMsg"></div>
 </section>
 
+<div class="area">1. 학습지도 (30점)</div>
 <section class="card">
-  <h2>2. 학습지도 · 수업시수 (상한 25점)</h2>
+  <h2>가. 수업시수 (상한 25점)</h2>
   <p class="sub">주당 수업시수를 입력하세요. 담임이었던 개월에는 창체 1시간이 자동 가산됩니다.</p>
   <div class="row">
     <div class="field"><label for="hours">주당 수업시수</label><input type="number" id="hours" step="0.01" min="0" max="40" placeholder="예: 18"></div>
@@ -134,16 +142,17 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
 </section>
 
 <section class="card">
-  <h2>3. 학습지도 · 다과목 지도 (상한 3.5점)</h2>
+  <h2>나. 다과목 지도 (상한 3.5점)</h2>
   <p class="sub">기간별로 해당 항목과 개월을 입력하세요. 개월 합계가 인정 개월과 같아야 합니다. 학기별로 다르면 두 줄로 나눠 입력합니다.</p>
   <div id="multiLock" class="status ok" style="display:none">비교과교사(보건·영양·사서·전문상담)는 기준안에 따라 3.3점이 자동 적용됩니다.</div>
   <div id="multiEdit"><div id="seg-multi"></div>
   <button class="ghost" data-add="multi">+ 기간 추가</button></div>
   <p class="note">※ 평가: 지필평가와 이에 준하는 수행평가 · 1학년 1학기 주제선택/진로탐색/진로독서는 평가과목으로 인정</p>
+  <p class="note"><b>※ 복수의 스포츠클럽 담당교사의 경우</b> 강사채용이 아닌 과목을 담당했으면 <b>3.3점</b>을 고릅니다(예: 2과목 중 1과목은 강사채용, 1과목은 강사채용 아님 → 3.3점). 담당 과목이 모두 강사채용이면 3.2점입니다.</p>
 </section>
 
 <section class="card">
-  <h2>4. 학습지도 · 수업공개 (상한 1.5점)</h2>
+  <h2>다. 수업공개 (상한 1.5점)</h2>
   <div class="radio" id="openRadio">
     <label><input type="radio" name="open" value="1.5"> 교내외 수업공개(제안수업) — 1.5점</label>
     <label><input type="radio" name="open" value="1" checked> 수업공유(학교교육계획) — 1점</label>
@@ -151,15 +160,17 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
   <p class="note">※ 복수의 수업공개가 있는 경우 상위 점수만 인정 · 비교과교사: 홈페이지에 연 6회 이상 정보 탑재 시 제안수업으로 인정</p>
 </section>
 
+<div class="area">2. 생활지도 (30점)</div>
 <section class="card">
-  <h2>5. 생활지도 기여도 (상한 30점)</h2>
+  <h2>가. 생활지도 기여도 (상한 30점)</h2>
   <p class="sub">기간별로 해당 역할과 개월을 입력하세요. 겸임 업무를 할 경우 상위 평가기준을 따릅니다(높은 점수 항목 선택).</p>
   <div id="seg-guide"></div>
   <button class="ghost" data-add="guide">+ 기간 추가</button>
 </section>
 
+<div class="area">3. 전문성개발 (10점)</div>
 <section class="card">
-  <h2>6. 전문성개발 · 연수 이수 시간 (상한 10점)</h2>
+  <h2>가. 연수 이수 시간 (상한 10점)</h2>
   <div class="row">
     <div class="field"><label for="training">연수 이수 시간(합계)</label><input type="number" id="training" min="0" step="1" placeholder="예: 42"></div>
   </div>
@@ -168,31 +179,34 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
   <label class="chk">교육(지원)청·교육청 산하 기관 자료집 집필 <input type="number" id="tr3" min="0" step="1" value="0" style="width:70px"> 건 (1건당 +15시간)</label>
 </section>
 
+<div class="area">4. 담당업무 (30점)</div>
 <section class="card">
-  <h2>7. 담당업무 · 보직 및 담임 (상한 27점)</h2>
+  <h2>가. 보직 및 담임 (상한 27점)</h2>
   <p class="sub">기간별로 해당 보직과 개월을 입력하세요. 겸임 업무를 할 경우 상위 평가기준을 따릅니다(높은 점수 항목 선택).</p>
   <div id="seg-post"></div>
   <button class="ghost" data-add="post">+ 기간 추가</button>
 </section>
 
 <section class="card">
-  <h2>8. 담당업무 · 동아리 운영 (상한 1.5점)</h2>
-  <p class="sub">기간별로 해당 개수와 개월을 입력하세요.</p>
-  <div id="seg-club"></div>
-  <button class="ghost" data-add="club">+ 기간 추가</button>
+  <h2>나. 동아리 운영 (상한 1.5점)</h2>
+  <p class="sub">해당하는 것을 하나씩 추가하고 명칭과 운영 기간을 고르세요. 없으면 비워 두면 됩니다(1.1점).</p>
+  <div id="clubList"></div>
+  <button class="ghost" id="clubAdd">+ 동아리·활동 추가</button>
+  <div class="cnt" id="clubCnt"></div>
   <p class="note">※ 학생지도: 교육과정동아리 / 자율동아리 / 동아리 업무 담당자 · 교사: 전학공 대표 / 각종 TF팀 / 교과 부장</p>
 </section>
 
 <section class="card">
-  <h2>9. 담당업무 · 교육활동 기여도 (상한 1.5점)</h2>
-  <div class="row">
-    <div class="field"><label for="committee">위원회(공모사업) 참여 개수</label><input type="number" id="committee" min="0" step="1" value="0"></div>
-  </div>
+  <h2>다. 교육활동 기여도 (상한 1.5점)</h2>
+  <p class="sub">참여한 위원회·공모사업을 하나씩 추가하세요. 개수는 자동으로 셉니다. 없으면 비워 두면 됩니다(1.1점).</p>
+  <div id="comList"></div>
+  <button class="ghost" id="comAdd">+ 위원회·공모사업 추가</button>
+  <div class="cnt" id="comCnt"></div>
   <p class="note">※ 아침 등교맞이 1개 인정 / 상조회 회장 2개, 총무 1개 인정 · 협의록 연 5회 이상 위원회 위원 및 간사 · 2026학년도 신설 공모사업 계획서·보고서 작성 제출자</p>
 </section>
 
 <section class="card">
-  <h2>10. 확인 및 제출</h2>
+  <h2>확인 및 제출</h2>
   <div id="validation"></div>
   <div class="actions">
     <button class="primary" id="submitBtn">제출하기</button>
@@ -209,39 +223,55 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
 <script>
 /* ================= 설정 ================= */
 // 구글 Apps Script 웹앱 URL (배포 후 입력)
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpA1J_1jR0ckgnRygWzuH0HBMUigQX4QXSsW6oY0hMBJ3HJPt2nO6rYhrc55XAL-9q7A/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpA1J_1jR0ckgnRygWzuH0HBMUigQX4QXSsW6oY0hMBJ3HJPt2nO6rYhrc55XAL-9q7A/exec"
 // 진로진학·보건·상담·영양·사서교사 평균 수업시수 (2026학년도)
 const AVG_HOURS = 18.46;
 const GROUP_LABEL={subject:"교과",career:"진로진학",nonsubject:"비교과(교육지원청)"};
 const PERIOD_START = "2026-03-01", PERIOD_END = "2027-02-28";
+const SEM1_END = "2026-08-31", SEM2_START = "2026-09-01";   // 1학기 3.1.~8.31. / 2학기 9.1.~2.28.
+
+// 동아리 운영 유형 (기준안 비고)
+const CLUB_TYPES = ["교육과정동아리","자율동아리","동아리 업무 담당자","전학공 대표","TF팀","교과 부장"];
+const CLUB_PH = {"자율동아리":"자율동아리명"};   // 이름을 적는 유형은 자율동아리뿐
+const TERMS = ["연간","1학기","2학기"];
+// 교육활동 기여도 유형: 개수(cnt)는 기준안 비고에 따름
+const COM_TYPES = [
+  {t:"위원회 위원·간사", cnt:1, pick:true},
+  {t:"신설 공모사업 계획서·보고서 작성", cnt:1, ph:"공모사업명"},
+  {t:"아침 등교맞이", cnt:1},
+  {t:"상조회 회장", cnt:2},
+  {t:"상조회 총무", cnt:1}
+];
+// 위원회 목록 (학교 실정에 맞게 고치세요) — 협의록 연 5회 이상인 위원회
+const COMMITTEES = ["학업성적관리위원회","인사위원회","학교폭력전담기구","생활교육위원회"];
 
 /* ================= 기준안 ================= */
 // prorate:true → 근무 개월 가중평균: Σ(배점×해당 개월) ÷ 근무 개월
 const CRITERIA = {
   hours: { area:"학습지도(30점)", name:"수업시수", max:25, floor:22, prorate:true,
     rows:[["21시간 이상",25],["20.5시간 이상 - 21시간 미만",24.75],["20시간 이상 - 20.5시간 미만",24.5],["19.5시간 이상 - 20시간 미만",24.25],["19시간 이상 - 19.5시간 미만",24],["18.5시간 이상 - 19시간 미만",23.75],["18시간 이상 - 18.5시간 미만",23.5],["17.5시간 이상 - 18시간 미만",23.25],["17시간 이상 - 17.5시간 미만",23],["16.5시간 이상 - 17시간 미만",22.75],["16시간 이상 - 16.5시간 미만",22.5],["15.5시간 이상 - 16시간 미만",22.25],["15.5시간 미만",22]],
-    remark:"진로진학·보건·상담·영양·사서교사: 평균 시수 / 담임교사: 시수+1(창체시수)" },
+    remark:["진로진학·보건·상담·영양·사서교사: 평균 시수","담임교사: 시수+1(창체시수)"] },
   multi: { area:"학습지도(30점)", name:"다과목 지도", max:3.5, floor:3.0, prorate:true,
-    rows:[["평가 시행 과목 2개 이상",3.5],["평가 시행 과목 1개 and 평가 미시행 과목 1개 이상",3.3],["스포츠클럽·보건·상담·영양·사서교사",3.3],["스포츠클럽(강사채용 과목 담당)",3.2],["1개 과목 지도 (위에 해당하지 않는 교사)",3.0]],
-    remark:"3.2점은 스포츠클럽 담당교사가 강사채용 과목을 담당한 경우에 한함" },
+    rows:[["평가 시행 과목 2개 이상",3.5],["평가 시행 과목 1개 and 평가 미시행 과목 1개 이상",3.3],["스포츠클럽(강사채용 아닌 과목 포함)·보건·상담·영양·사서교사",3.3],["스포츠클럽(담당 과목 모두 강사채용)",3.2],["1개 과목 지도 (위에 해당하지 않는 교사)",3.0]],
+    remark:["평가: 지필평가와 이에 준하는 수행평가","1학년 1학기 주제선택·진로탐색·진로독서는 평가과목으로 인정","복수의 스포츠클럽 담당 시 강사채용이 아닌 과목이 있으면 3.3점, 모두 강사채용이면 3.2점"] },
   open: { area:"학습지도(30점)", name:"수업공개", max:1.5, prorate:false,
     rows:[["교내외수업공개(제안수업)",1.5],["수업공유(학교교육계획)",1]],
-    remark:"복수의 수업공개는 상위 점수만 인정" },
+    remark:["복수의 수업공개는 상위 점수만 인정","비교과교사: 홈페이지에 연 6회 이상 정보 탑재 시 제안수업으로 인정"] },
   guide: { area:"생활지도(30점)", name:"생활지도 기여도", max:30, floor:29, prorate:true,
     rows:[["학년부장, 생활인권부장, 인권부 생활지도·학교폭력 담당교사, 학년부 생활지도 담당교사, 상담교사",30],["담임, 보건, 영양, 사서, 특수(총괄)",29.5],["부장, 비담임",29]],
     remark:"겸임 업무를 할 경우 상위 평가기준을 따름" },
   training: { area:"전문성개발(10점)", name:"연수 이수 시간", max:10, prorate:false,
     rows:[["60시간 이상",10],["45시간 이상 - 60시간 미만",9],["30시간 이상 - 45시간 미만",8],["30시간 미만",7]],
-    remark:"연구회 3회 이상: 15시간 / 위촉장: 1장당 15시간 / 자료집 집필: 1건당 15시간 인정" },
+    remark:["연구회 3회 이상 참여: 15시간","교육감(장)·교육청 산하 기관장 위촉장: 15시간","교육(지원)청·교육청 산하 기관 자료집 집필: 15시간"] },
   post: { area:"담당업무(30점)", name:"보직 및 담임(업무곤란도)", max:27, floor:25.5, prorate:true,
     rows:[["교무부장",27],["부장(교무 외)",26.5],["담임, 보건, 상담, 영양, 사서, 특수(총괄)",26],["비담임",25.5]],
     remark:"겸임 업무를 할 경우 상위 평가기준을 따름" },
   club: { area:"담당업무(30점)", name:"동아리 운영", max:1.5, floor:1.1, prorate:true,
     rows:[["2개 이상 해당",1.5],["1개 운영",1.3],["해당하지 않음",1.1]],
-    remark:"" },
+    remark:["학생지도: 교육과정동아리 / 자율동아리 / 동아리 업무 담당자","교사: 전학공 대표 / 각종 TF팀 / 교과 부장"] },
   committee: { area:"담당업무(30점)", name:"교육활동 기여도(위원회·공모사업)", max:1.5, prorate:false,
     rows:[["위원회(공모사업) 4개 이상 참여",1.5],["위원회(공모사업) 3개 참여",1.4],["위원회(공모사업) 2개 참여",1.3],["위원회(공모사업) 1개 참여",1.2],["위원회(공모사업) 참여 없음",1.1]],
-    remark:"" }
+    remark:["아침 등교맞이 1개, 상조회 회장 2개·총무 1개 인정","협의록 연 5회 이상의 위원회 위원 및 간사","2026학년도 신설 공모사업 계획서 및 보고서 작성 제출자"] }
 };
 const ORDER = ["hours","multi","open","guide","training","post","club","committee"];
 
@@ -283,8 +313,45 @@ function committeeRow(n){ return n>=4?0: n===3?1: n===2?2: n===1?3: 4; }
 
 /* ================= 화면 ================= */
 const $=id=>document.getElementById(id);
-const SEG_KEYS=["multi","guide","post","club"];
-const segState={ multi:[{idx:4,months:12}], guide:[{idx:2,months:12}], post:[{idx:3,months:12}], club:[{idx:2,months:12}] };
+const SEG_KEYS=["multi","guide","post"];
+const segState={ multi:[{idx:4,months:12}], guide:[{idx:2,months:12}], post:[{idx:3,months:12}] };
+let clubs=[];      // {type, name, term}
+let coms=[];       // {type, name, etc}
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const opts=(list,val,ph)=>(ph?`<option value="">${ph}</option>`:"")+list.map(v=>`<option${v===val?" selected":""}>${esc(v)}</option>`).join("");
+function renderClubs(){
+  const box=$("clubList"); box.innerHTML="";
+  clubs.forEach((c,i)=>{ const d=document.createElement("div"); d.className="item";
+    const named=!!CLUB_PH[c.type];
+    d.innerHTML=`<select class="ctype">${opts(CLUB_TYPES,c.type,"유형 선택")}</select>${named?`<input class="cname" placeholder="${esc(CLUB_PH[c.type])}" value="${esc(c.name)}">`:""}<select class="term">${opts(TERMS,c.term)}</select><button class="del">삭제</button>`;
+    d.querySelector(".ctype").onchange=e=>{ c.type=e.target.value; if(!CLUB_PH[c.type]) c.name=""; renderClubs(); update(); };
+    const inp=d.querySelector(".cname"); if(inp) inp.oninput=()=>{ c.name=inp.value; update(); };
+    d.querySelector(".term").onchange=e=>{ c.term=e.target.value; update(); };
+    d.querySelector(".del").onclick=()=>{ clubs.splice(i,1); renderClubs(); update(); };
+    box.appendChild(d); });
+}
+function renderComs(){
+  const box=$("comList"); box.innerHTML="";
+  coms.forEach((c,i)=>{ const d=document.createElement("div"); d.className="item";
+    const T=COM_TYPES.find(x=>x.t===c.type)||{};
+    let nameHtml="";
+    if(T.pick) nameHtml=`<select class="cname">${opts(COMMITTEES.concat(["기타(직접 입력)"]),c.name,"위원회 선택")}</select>`+(c.name==="기타(직접 입력)"?`<input class="etc" placeholder="위원회명" value="${esc(c.etc)}">`:"");
+    else if(T.ph) nameHtml=`<input class="cname" placeholder="${esc(T.ph)}" value="${esc(c.name)}">`;
+    d.innerHTML=`<select class="ctype">${opts(COM_TYPES.map(x=>x.t),c.type,"유형 선택")}</select>${nameHtml}<button class="del">삭제</button>`;
+    d.querySelector(".ctype").onchange=e=>{ c.type=e.target.value; c.name=""; c.etc=""; renderComs(); update(); };
+    const cn=d.querySelector(".cname"); if(cn){ cn.oninput=cn.onchange=()=>{ const was=c.name; c.name=cn.value; if(T.pick&&((was==="기타(직접 입력)")!==(c.name==="기타(직접 입력)"))) renderComs(); update(); }; }
+    const et=d.querySelector(".etc"); if(et) et.oninput=()=>{ c.etc=et.value; update(); };
+    d.querySelector(".del").onclick=()=>{ coms.splice(i,1); renderComs(); update(); };
+    box.appendChild(d); });
+}
+$("clubAdd").onclick=()=>{ clubs.push({type:"",name:"",term:"연간"}); renderClubs(); update(); };
+$("comAdd").onclick=()=>{ coms.push({type:"",name:"",etc:""}); renderComs(); update(); };
+// 근무 기간 중 학기별 인정 개월 (16일 이상 1개월)
+function termMonths(start,end){
+  const ov=(a,b)=>{ const s=start>a?start:a, e=end<b?end:b; return e<s?0:monthsFromDays(daysBetween(s,e)); };
+  return {m1:ov(PERIOD_START,SEM1_END), m2:ov(SEM2_START,PERIOD_END)};
+}
+const clubRow=n=>n>=2?0:n===1?1:2;
 
 function renderSegs(key){
   const box=$("seg-"+key); box.innerHTML="";
@@ -346,13 +413,13 @@ function compute(){
     if(months>0){
       res[k]=prorate(k,segs); hits[k]=segs.map(s=>s.idx);
       const c=CRITERIA[k];
-      basis[k]= segs.length>1 ? segs.map(s=>`${c.rows[s.idx][1]}×${s.months}개월`).join(", ") + ` → (` + segs.map(s=>`${c.rows[s.idx][1]}×${s.months}`).join(" + ") + `) ÷ ${months}` : (segs.length? `${c.rows[segs[0].idx][1]} (근무 ${months}개월 동일)` : "");
+      basis[k]= segs.length>1 ? segs.map(s=>`${c.rows[s.idx][1]}×${s.months}개월`).join(", ") + ` → (` + segs.map(s=>`${c.rows[s.idx][1]}×${s.months}`).join(" + ") + `) ÷ ${months}` : (segs.length? `${c.rows[segs[0].idx][1]} (${months}개월)` : "");
     }
   }
 
   // 수업공개
   const openV=+document.querySelector('input[name="open"]:checked').value;
-  res.open=openV; hits.open=[openV===1.5?0:1]; basis.open="실적 기준";
+  res.open=openV; hits.open=[openV===1.5?0:1]; basis.open="";
 
   // 연수
   const trBase=Math.max(0,+$("training").value||0);
@@ -361,19 +428,45 @@ function compute(){
   const extra=(($("tr1").checked?1:0)+certN+bookN)*15;
   const trTotal=trBase+extra; const ti=trainingRow(trTotal);
   res.training=CRITERIA.training.rows[ti][1]; hits.training=[ti];
-  basis.training=`이수 ${trBase}시간${extra?` + 인정 ${extra}시간`:""} = ${trTotal}시간`;
+  const trParts=[`이수 ${trBase}시간`];
+  if($("tr1").checked) trParts.push("연구회 3회 이상 15시간");
+  if(certN) trParts.push(`위촉장 ${certN}장 ${certN*15}시간`);
+  if(bookN) trParts.push(`자료집 ${bookN}건 ${bookN*15}시간`);
+  basis.training=trParts.join(" + ")+(trParts.length>1?` = ${trTotal}시간`:"");
 
-  // 위원회
-  const cn=Math.max(0,Math.floor(+$("committee").value||0)); const ci=committeeRow(cn);
+  // 동아리 운영 (학기별 개수 → 학기 개월로 가중평균)
+  const clubOk=clubs.filter(c=>c.type);
+  clubs.forEach((c,i)=>{ if(!c.type) errors.push(`동아리 운영 ${i+1}번째 줄: 유형을 고르세요.`); else if(CLUB_PH[c.type]&&!c.name.trim()) errors.push(`동아리 운영 ${i+1}번째 줄: 자율동아리명을 입력하세요.`); });
+  if(months>0){
+    const {m1,m2}=termMonths(start,end);
+    const n1=clubOk.filter(c=>c.term!=="2학기").length, n2=clubOk.filter(c=>c.term!=="1학기").length;
+    const segs=[]; if(m1>0) segs.push({idx:clubRow(n1),months:m1,n:n1,t:"1학기"}); if(m2>0) segs.push({idx:clubRow(n2),months:m2,n:n2,t:"2학기"});
+    const same=segs.length<2||segs[0].idx===segs[1].idx;
+    res.club=prorate("club",segs); hits.club=[...new Set(segs.map(s=>s.idx))];
+    const list=clubOk.length?clubOk.map(c=>{ const x=[CLUB_PH[c.type]?c.name.trim():"",c.term!=="연간"?c.term:""].filter(Boolean); return c.type+(x.length?`(${x.join(", ")})`:""); }).join(", "):"해당 없음";
+    const C=CRITERIA.club.rows;
+    basis.club=list+(same?"": ` → `+segs.map(s=>`${s.t} ${s.n}개 ${C[s.idx][1]}×${s.months}`).join(" + ")+` ÷ ${segs.reduce((a,s)=>a+s.months,0)}`);
+  }
+
+  // 교육활동 기여도 (위원회·공모사업)
+  let cn=0; const comNames=[];
+  coms.forEach((c,i)=>{ const T=COM_TYPES.find(x=>x.t===c.type);
+    if(!T){ errors.push(`교육활동 기여도 ${i+1}번째 줄: 유형을 고르세요.`); return; }
+    let nm=T.pick?(c.name==="기타(직접 입력)"?(c.etc||"").trim():c.name):(T.ph?(c.name||"").trim():"");
+    if((T.pick||T.ph)&&!nm){ errors.push(`교육활동 기여도 ${i+1}번째 줄: ${T.pick?"위원회":"공모사업명"}을 입력하세요.`); return; }
+    cn+=T.cnt; comNames.push(T.pick?nm:T.ph?`공모사업(${nm})`:(T.cnt>1?`${T.t}(${T.cnt}개)`:T.t)); });
+  const dup=comNames.filter((x,i)=>comNames.indexOf(x)!==i); if(dup.length) errors.push(`교육활동 기여도: ${[...new Set(dup)].join(", ")}이(가) 중복되었습니다.`);
+  const ci=committeeRow(cn);
   res.committee=CRITERIA.committee.rows[ci][1]; hits.committee=[ci];
-  basis.committee=`${cn}개 참여`;
+  basis.committee=comNames.length?`${comNames.join(", ")} → ${cn}개`:"참여 없음";
 
   const rounded={}; let total=0;
   for(const k of ORDER){ if(res[k]!==undefined){ rounded[k]=round2(res[k]); total+=rounded[k]; } }
   total=round2(total);
   const complete=ORDER.every(k=>rounded[k]!==undefined);
   return {name,group,start,end,days,months,hours:h,homeroomMonths:hm,rounded,basis,hits,total,complete,errors,warns,
-    training:{base:trBase,extra,total:trTotal}, committee:cn, segs:JSON.parse(JSON.stringify(segState))};
+    training:{base:trBase,research:$("tr1").checked,cert:certN,book:bookN,extra,total:trTotal}, committee:cn, segs:JSON.parse(JSON.stringify(segState)),
+    clubs:JSON.parse(JSON.stringify(clubs)), coms:JSON.parse(JSON.stringify(coms))};
 }
 
 function renderSheet(r){
@@ -390,7 +483,7 @@ function renderSheet(r){
       if(!doneArea[c.area] ){ html+=`<td class="c" rowspan="${areaSpan[c.area]}">${({"학습지도(30점)":"학습<br>지도<br>(30점)","생활지도(30점)":"생활<br>지도<br>(30점)","전문성개발(10점)":"전문성<br>개발<br>(10점)","담당업무(30점)":"담당<br>업무<br>(30점)"})[c.area]||c.area}</td>`; doneArea[c.area]=1; }
       if(i===0){ html+=`<td class="c ind" rowspan="${n}">${({"수업시수":"수업<br>시수","다과목 지도":"다과목<br>지도","수업공개":"수업<br>공개","생활지도 기여도":"생활지도<br>기여도","연수 이수 시간":"연수<br>이수 시간","보직 및 담임(업무곤란도)":"보직 및<br>담임<br>(업무<br>곤란도)","동아리 운영":"동아리<br>운영","교육활동 기여도(위원회·공모사업)":"교육활동<br>기여도<br>(위원회·<br>공모사업)"})[c.name]||c.name}</td><td class="c" rowspan="${n}">${c.max}</td>`; }
       html+=`<td class="crit">${row[0]}</td><td class="c pt">${row[1]}</td>`;
-      if(i===0){ const s=r.rounded[k]; html+=`<td class="score" rowspan="${n}">${s===undefined?"-":fmtScore(s)}</td><td class="basis" rowspan="${n}">${r.basis[k]||""}${c.remark?`<span class="rmk">※ ${c.remark}</span>`:""}</td>`; }
+      if(i===0){ const s=r.rounded[k]; html+=`<td class="score" rowspan="${n}">${s===undefined?"-":fmtScore(s)}</td><td class="basis" rowspan="${n}">${r.basis[k]||""}${[].concat(c.remark||[]).map(m=>`<span class="rmk">※ ${m}</span>`).join("")}</td>`; }
       html+=`</tr>`;
     });
   }
@@ -407,6 +500,8 @@ function update(){
   $("multiLock").style.display=g==="nonsubject"?"":"none";
   $("multiEdit").style.display=g==="nonsubject"?"none":"";
   const r=compute();
+  { const n=clubs.filter(c=>c.type).length; $("clubCnt").textContent=r.rounded.club!==undefined?`→ ${n?n+"개 입력":"해당 없음"} · ${r.rounded.club.toFixed(2)}점`:""; }
+  $("comCnt").textContent=`→ ${r.committee}개 · ${r.rounded.committee.toFixed(2)}점`;
   $("monthsBadge").textContent=r.months?`${r.months}개월 (${r.days}일)`:"-";
   $("periodMsg").innerHTML="";
   $("validation").innerHTML=r.errors.length?`<div class="status bad">${r.errors.map(e=>"• "+e).join("<br>")}</div>`:`<div class="status ok">입력이 완료되었습니다. 총점 ${fmtScore(r.total)}점</div>`;
@@ -417,9 +512,9 @@ function update(){
 
 /* 임시 저장 (이 브라우저에만) */
 const DRAFT_KEY="okbit-dagmyeon-2026";
-const FIELDS=["name","group","start","end","hours","homeroomMonths","training","committee","tr2","tr3"];
-function saveDraft(){ try{ const d={segState}; FIELDS.forEach(f=>d[f]=$(f).value); d.tr1=$("tr1").checked; d.open=document.querySelector('input[name="open"]:checked').value; localStorage.setItem(DRAFT_KEY,JSON.stringify(d)); }catch(e){} }
-function loadDraft(){ try{ const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null"); if(!d)return; FIELDS.forEach(f=>{ if(d[f]!==undefined)$(f).value=d[f]; }); $("tr1").checked=!!d.tr1; ["tr2","tr3"].forEach(f=>{ if(typeof d[f]!=="string")$(f).value=0; }); const o=document.querySelector(`input[name="open"][value="${d.open}"]`); if(o)o.checked=true; if(d.segState) SEG_KEYS.forEach(k=>{ if(Array.isArray(d.segState[k])&&d.segState[k].length) segState[k]=d.segState[k]; }); }catch(e){} }
+const FIELDS=["name","group","start","end","hours","homeroomMonths","training","tr2","tr3"];
+function saveDraft(){ try{ const d={segState,clubs,coms}; FIELDS.forEach(f=>d[f]=$(f).value); d.tr1=$("tr1").checked; d.open=document.querySelector('input[name="open"]:checked').value; localStorage.setItem(DRAFT_KEY,JSON.stringify(d)); }catch(e){} }
+function loadDraft(){ try{ const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null"); if(!d)return; FIELDS.forEach(f=>{ if(d[f]!==undefined)$(f).value=d[f]; }); $("tr1").checked=!!d.tr1; ["tr2","tr3"].forEach(f=>{ if(typeof d[f]!=="string")$(f).value=0; }); const o=document.querySelector(`input[name="open"][value="${d.open}"]`); if(o)o.checked=true; if(d.segState) SEG_KEYS.forEach(k=>{ if(Array.isArray(d.segState[k])&&d.segState[k].length) segState[k]=d.segState[k]; }); if(Array.isArray(d.clubs)) clubs=d.clubs; if(Array.isArray(d.coms)) coms=d.coms; }catch(e){} }
 
 document.querySelectorAll("input,select").forEach(el=>{ el.addEventListener("input",update); el.addEventListener("change",update); });
 $("resetBtn").onclick=()=>{ if(!confirm("입력한 내용을 모두 지우고 처음 상태로 되돌릴까요?\n(이미 제출한 내용은 시트에 그대로 남습니다)"))return; try{localStorage.removeItem(DRAFT_KEY);}catch(e){} location.reload(); };
@@ -431,7 +526,7 @@ $("submitBtn").onclick=async()=>{
   if(!confirm(`${r.name} 선생님, 총점 ${fmtScore(r.total)}점으로 제출합니다.\n같은 이름으로 다시 제출하면 기존 제출 내용이 덮어쓰기 됩니다.`)) return;
   const payload={name:r.name,group:GROUP_LABEL[r.group],start:r.start,end:r.end,days:r.days,months:r.months,
     hours:r.hours,homeroomMonths:r.homeroomMonths,scores:r.rounded,total:r.total,basis:r.basis,
-    detail:{segs:r.segs,training:r.training,committee:r.committee,open:r.rounded.open}};
+    detail:{segs:r.segs,training:r.training,committee:r.committee,open:r.rounded.open,clubs:r.clubs,coms:r.coms}};
   $("submitBtn").disabled=true; msg.innerHTML=`<div class="status ok">제출 중…</div>`;
   try{
     const resp=await fetch(SCRIPT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
@@ -443,7 +538,7 @@ $("submitBtn").onclick=async()=>{
 };
 
 loadDraft();
-SEG_KEYS.forEach(renderSegs);
+SEG_KEYS.forEach(renderSegs); renderClubs(); renderComs();
 update();
 </script>
 </body>
