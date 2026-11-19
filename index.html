@@ -73,7 +73,27 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
 .item button{flex:none}
 .cnt{font-size:13px;margin-top:4px;color:var(--accent);font-weight:700}
 
+/* ===== 단계별(위저드) ===== */
+.step{display:none}
+.step.on{display:block}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 12px}
+.steps button{flex:1;min-width:74px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 4px;font:inherit;font-size:12.5px;color:var(--muted);cursor:pointer}
+.steps button .n{display:inline-block;width:18px;height:18px;line-height:18px;border-radius:50%;background:#e6ebe8;color:var(--muted);font-size:11px;font-weight:700;margin-right:3px}
+.steps button.done{color:var(--accent);border-color:var(--accent)}
+.steps button.done .n{background:var(--accent);color:#fff}
+.steps button.cur{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.steps button.cur .n{background:#fff;color:var(--accent)}
+.steps button:disabled{opacity:.55;cursor:not-allowed}
+.nav{display:flex;gap:8px;margin:4px 0 14px}
+.nav button{flex:1;padding:13px;font-size:16px}
+.nav button.next{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.stepmsg{margin-bottom:14px}
+.subtotal{text-align:right;font-size:13px;color:var(--muted);margin:-4px 0 10px}
+.subtotal b{color:var(--accent);font-size:15px}
+
 @media print{
+  .steps,.nav,.stepmsg,.subtotal{display:none!important}
+  .step{display:block!important}
   @page{size:A4 portrait;margin:10mm 9mm 8mm 9mm}
   html,body{background:#fff;font-size:10px;line-height:1.25}
   header,.card,.area,.noprint{display:none!important}
@@ -108,9 +128,11 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
   <p>평가대상 기간 2026. 3. 1. ~ 2027. 2. 28. · 겸임·역할 변경 시 근무 개월 가중평균으로 계산됩니다.</p>
 </header>
 <main>
+<div class="steps noprint" id="steps"></div>
 
+<div class="step" id="step-1">
 <section class="card">
-  <h2>기본 정보</h2>
+  <h2>1단계. 기본 정보</h2>
   <p class="sub">근무 시작일과 종료일을 입력하면 인정 개월이 자동 계산됩니다. (16일 이상 1개월, 46일 이상 2개월 …) 평가 대상 여부는 지침에 따라 역(曆)에 의한 2개월 이상 실근무로 판단합니다.</p>
   <div class="row">
     <div class="field"><label for="name">성명</label><input id="name" placeholder="홍길동"></div>
@@ -129,8 +151,12 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
   </div>
   <div id="periodMsg"></div>
 </section>
+<div class="nav"><button class="next" id="next1" type="button">다음 →</button></div>
+<div class="stepmsg" id="msg-1"></div>
+</div>
 
-<div class="area">1. 학습지도 (30점)</div>
+<div class="step" id="step-2">
+<div class="area">2단계. 학습지도 (30점)</div>
 <section class="card">
   <h2>가. 수업시수 (상한 25점)</h2>
   <p class="sub">주당 수업시수를 입력하세요. 담임이었던 개월에는 창체 1시간이 자동 가산됩니다.</p>
@@ -169,7 +195,13 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
   <p class="note">※ 복수의 수업공개가 있는 경우 상위 점수만 인정 · 비교과교사: 홈페이지에 연 6회 이상 정보 탑재 시 제안수업으로 인정</p>
 </section>
 
-<div class="area">2. 생활지도 (30점)</div>
+<div class="subtotal" id="sub-2"></div>
+<div class="nav"><button id="prev2" type="button">← 이전</button><button class="next" id="next2" type="button">다음 →</button></div>
+<div class="stepmsg" id="msg-2"></div>
+</div>
+
+<div class="step" id="step-3">
+<div class="area">3단계. 생활지도 (30점)</div>
 <section class="card">
   <h2>가. 생활지도 기여도 (상한 30점)</h2>
   <p class="sub">기간별로 해당 역할과 개월을 입력하세요. 겸임 업무를 할 경우 상위 평가기준을 따릅니다(높은 점수 항목 선택).</p>
@@ -177,7 +209,13 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
   <button class="ghost" data-add="guide">+ 기간 추가</button>
 </section>
 
-<div class="area">3. 전문성개발 (10점)</div>
+<div class="subtotal" id="sub-3"></div>
+<div class="nav"><button id="prev3" type="button">← 이전</button><button class="next" id="next3" type="button">다음 →</button></div>
+<div class="stepmsg" id="msg-3"></div>
+</div>
+
+<div class="step" id="step-4">
+<div class="area">4단계. 전문성개발 (10점)</div>
 <section class="card">
   <h2>가. 연수 이수 시간 (상한 10점)</h2>
   <div class="row">
@@ -189,7 +227,13 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
   <p class="note">※ 근무 개월이 12개월 미만이면 이수 시간(인정 시간 포함)을 12개월 기준으로 환산합니다: 이수 시간 × 12 ÷ 근무 개월 (예: 6개월 근무, 28시간 → 28×12÷6 = 56시간 → 9점)</p>
 </section>
 
-<div class="area">4. 담당업무 (30점)</div>
+<div class="subtotal" id="sub-4"></div>
+<div class="nav"><button id="prev4" type="button">← 이전</button><button class="next" id="next4" type="button">다음 →</button></div>
+<div class="stepmsg" id="msg-4"></div>
+</div>
+
+<div class="step" id="step-5">
+<div class="area">5단계. 담당업무 (30점)</div>
 <section class="card">
   <h2>가. 보직 및 담임 (상한 27점)</h2>
   <p class="sub">기간별로 해당 보직과 개월을 입력하세요. 겸임 업무를 할 경우 상위 평가기준을 따릅니다(높은 점수 항목 선택).</p>
@@ -215,8 +259,15 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
   <p class="note">※ 아침 등교맞이 1개 인정 / 상조회 회장 2개, 총무 1개 인정 · 협의록 연 5회 이상 위원회 위원 및 간사 · 2026학년도 신설 공모사업 계획서·보고서 작성 제출자</p>
 </section>
 
+<div class="subtotal" id="sub-5"></div>
+<div class="nav"><button id="prev5" type="button">← 이전</button><button class="next" id="next5" type="button">다음 →</button></div>
+<div class="stepmsg" id="msg-5"></div>
+</div>
+
+<div class="step" id="step-6">
 <section class="card">
-  <h2>확인 및 제출</h2>
+  <h2>6단계. 확인 및 제출</h2>
+  <p class="sub">아래 평가표에서 점수와 산출근거를 확인한 뒤 제출하세요. 고칠 곳이 있으면 위 단계 버튼을 눌러 돌아가면 됩니다.</p>
   <div id="validation"></div>
   <div class="actions">
     <button class="primary" id="submitBtn">제출하기</button>
@@ -226,7 +277,9 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
   <div id="submitMsg"></div>
 </section>
 
+<div class="nav"><button id="prev6" type="button">← 이전</button></div>
 <section id="sheet"></section>
+</div>
 
 </main>
 
@@ -537,6 +590,7 @@ function update(){
   $("periodMsg").innerHTML="";
   $("validation").innerHTML=r.errors.length?`<div class="status bad">${r.errors.map(e=>"• "+e).join("<br>")}</div>`:`<div class="status ok">입력이 완료되었습니다. 총점 ${fmtScore(r.total)}점</div>`;
   renderSheet(r);
+  if(typeof renderSubtotals==="function") renderSubtotals(r);
   saveDraft();
   return r;
 }
@@ -568,9 +622,47 @@ $("submitBtn").onclick=async()=>{
   $("submitBtn").disabled=false;
 };
 
+/* ===== 단계 이동 ===== */
+const STEP_TITLES=["","기본 정보","학습지도","생활지도","전문성개발","담당업무","확인·제출"];
+const STEP_ERR=[null,/근무 시작일|근무 기간은|종료일이|실근무|성명/,/수업시수|담임 근무 개월|담임 개월|다과목/,/생활지도/,/연수/,/보직|동아리|교육활동/];
+const STEP_KEYS=[null,[],["hours","multi","open"],["guide"],["training"],["post","club","committee"]];
+let STEP=1, MAXSTEP=1;
+function renderSteps(){
+  const w=$("steps"); w.innerHTML="";
+  for(let i=1;i<=6;i++){
+    const b=document.createElement("button"); b.type="button";
+    b.innerHTML=`<span class="n">${i}</span>${STEP_TITLES[i]}`;
+    b.classList.toggle("done",i<STEP); b.classList.toggle("cur",i===STEP); b.disabled=i>MAXSTEP;
+    b.onclick=()=>{ if(i<=MAXSTEP) showStep(i); };
+    w.appendChild(b);
+  }
+}
+function renderSubtotals(r){
+  for(let n=2;n<=5;n++){ const el=$("sub-"+n); if(!el) continue;
+    const keys=STEP_KEYS[n]; const v=keys.reduce((a,k)=>a+(+r.rounded[k]||0),0);
+    el.innerHTML=`이 단계 점수 <b>${fmtScore(v)}</b>점 · 현재 총점 ${fmtScore(r.total)}점`; }
+}
+function showStep(n){
+  STEP=n; if(n>MAXSTEP) MAXSTEP=n;
+  document.querySelectorAll(".step").forEach(s=>s.classList.remove("on"));
+  $("step-"+n).classList.add("on");
+  renderSteps(); update();
+  const m=$("msg-"+n); if(m) m.innerHTML="";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function goNext(n){
+  const r=compute(); const E=r.errors.filter(e=>STEP_ERR[n].test(e)); const m=$("msg-"+n);
+  if(E.length){ m.innerHTML=`<div class="status bad">${E.map(e=>"• "+e).join("<br>")}</div>`; return; }
+  showStep(n+1);
+}
+[1,2,3,4,5].forEach(n=>$("next"+n).onclick=()=>goNext(n));
+[2,3,4,5,6].forEach(n=>$("prev"+n).onclick=()=>showStep(n-1));
+
+const HAD_DRAFT=(()=>{ try{ return !!localStorage.getItem(DRAFT_KEY); }catch(e){ return false; } })();
 loadDraft();
 SEG_KEYS.forEach(renderSegs); renderClubs(); renderComs();
-update();
+if(HAD_DRAFT) MAXSTEP=6;   // 저장된 입력이 있으면 모든 단계로 바로 이동 가능
+showStep(1);
 </script>
 </body>
 </html>
