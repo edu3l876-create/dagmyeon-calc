@@ -186,6 +186,7 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
   <label class="chk"><input type="checkbox" id="tr1"> 연구회 3회 이상 참여 (+15시간)</label>
   <label class="chk">교육감(장)·교육청 산하 기관장 위촉장 <input type="number" id="tr2" min="0" step="1" value="0" style="width:70px"> 장 (1장당 +15시간)</label>
   <label class="chk">교육(지원)청·교육청 산하 기관 자료집 집필 <input type="number" id="tr3" min="0" step="1" value="0" style="width:70px"> 건 (1건당 +15시간)</label>
+  <p class="note">※ 근무 개월이 12개월 미만이면 이수 시간(인정 시간 포함)을 12개월 기준으로 환산합니다: 이수 시간 × 12 ÷ 근무 개월 (예: 6개월 근무, 28시간 → 28×12÷6 = 56시간 → 9점)</p>
 </section>
 
 <div class="area">4. 담당업무 (30점)</div>
@@ -271,7 +272,7 @@ const CRITERIA = {
     remark:"겸임 업무를 할 경우 상위 평가기준을 따름" },
   training: { area:"전문성개발(10점)", name:"연수 이수 시간", max:10, prorate:false,
     rows:[["60시간 이상",10],["45시간 이상 - 60시간 미만",9],["30시간 이상 - 45시간 미만",8],["30시간 미만",7]],
-    remark:["연구회 3회 이상 참여: 15시간","교육감(장)·교육청 산하 기관장 위촉장: 15시간","교육(지원)청·교육청 산하 기관 자료집 집필: 15시간"] },
+    remark:["연구회 3회 이상 참여: 15시간","교육감(장)·교육청 산하 기관장 위촉장: 15시간","교육(지원)청·교육청 산하 기관 자료집 집필: 15시간","근무 개월이 12개월 미만이면 이수 시간을 12개월 기준으로 환산(이수 시간 × 12 ÷ 근무 개월)"] },
   post: { area:"담당업무(30점)", name:"보직 및 담임(업무곤란도)", max:27, floor:25.5, prorate:true,
     rows:[["교무부장",27],["부장(교무 외)",26.5],["담임, 보건, 상담, 영양, 사서, 특수(총괄)",26],["비담임",25.5]],
     remark:"겸임 업무를 할 경우 상위 평가기준을 따름" },
@@ -449,13 +450,17 @@ function compute(){
   const certN=Math.max(0,Math.floor(+$("tr2").value||0));
   const bookN=Math.max(0,Math.floor(+$("tr3").value||0));
   const extra=(($("tr1").checked?1:0)+certN+bookN)*15;
-  const trTotal=trBase+extra; const ti=trainingRow(trTotal);
+  const trTotal=trBase+extra;
+  // 근무 12개월 미만: 이수 시간을 12개월 기준으로 환산 (이수 시간 × 12 ÷ 근무 개월)
+  const trConv=(months>0&&months<12)? Math.round(trTotal*12/months*100)/100 : trTotal;
+  const ti=trainingRow(trConv);
   res.training=CRITERIA.training.rows[ti][1]; hits.training=[ti];
   const trParts=[`이수 ${trBase}시간`];
   if($("tr1").checked) trParts.push("연구회 3회 이상 15시간");
   if(certN) trParts.push(`위촉장 ${certN}장 ${certN*15}시간`);
   if(bookN) trParts.push(`자료집 ${bookN}건 ${bookN*15}시간`);
-  basis.training=trParts.join(" + ")+(trParts.length>1?` = ${trTotal}시간`:"");
+  basis.training=trParts.join(" + ")+(trParts.length>1?` = ${trTotal}시간`:"")
+    +(trConv!==trTotal?` → ${months}개월 근무 환산: ${trTotal}×12÷${months} = ${fmt(trConv)}시간`:"");
 
   // 동아리 운영 (학기별 개수 → 학기 개월로 가중평균)
   const clubOk=clubs.filter(c=>c.type);
@@ -488,7 +493,7 @@ function compute(){
   total=round2(total);
   const complete=ORDER.every(k=>rounded[k]!==undefined);
   return {name,group,start,end,days,months,hours:hoursOut,homeroomMonths:hm,rounded,basis,hits,total,complete,errors,warns,
-    training:{base:trBase,research:$("tr1").checked,cert:certN,book:bookN,extra,total:trTotal}, committee:cn, segs:JSON.parse(JSON.stringify(segState)),
+    training:{base:trBase,research:$("tr1").checked,cert:certN,book:bookN,extra,total:trTotal,converted:trConv}, committee:cn, segs:JSON.parse(JSON.stringify(segState)),
     clubs:JSON.parse(JSON.stringify(clubs)), coms:JSON.parse(JSON.stringify(coms))};
 }
 
