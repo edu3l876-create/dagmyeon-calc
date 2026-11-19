@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>옥빛중 다면평가 계산기</title>
+<title>옥빛중 2027 다면평가 계산기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -124,8 +124,8 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
 </head>
 <body>
 <header>
-  <h1>2026학년도 옥빛중학교 다면평가(정량평가) 계산기</h1>
-  <p>평가대상 기간 2026. 3. 1. ~ 2027. 2. 28. · 겸임·역할 변경 시 근무 개월 가중평균으로 계산됩니다.</p>
+  <h1>2027학년도 옥빛중학교 다면평가(정량평가) 계산기</h1>
+  <p>평가대상 기간 2027. 3. 1. ~ 2028. 2. 28. · 겸임·역할 변경 시 근무 개월 가중평균으로 계산됩니다.</p>
 </header>
 <main>
 <div class="steps noprint" id="steps"></div>
@@ -145,8 +145,8 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
     </div>
   </div>
   <div class="row" style="margin-top:10px">
-    <div class="field"><label for="start">근무 시작일</label><input type="date" id="start" value="2026-03-01" min="2026-03-01" max="2027-02-28"></div>
-    <div class="field"><label for="end">근무 종료일</label><input type="date" id="end" value="2027-02-28" min="2026-03-01" max="2027-02-28"></div>
+    <div class="field"><label for="start">근무 시작일</label><input type="date" id="start" value="2027-03-01" min="2027-03-01" max="2028-02-28"></div>
+    <div class="field"><label for="end">근무 종료일</label><input type="date" id="end" value="2028-02-28" min="2027-03-01" max="2028-02-28"></div>
     <div class="field" style="flex:none"><label>인정 개월</label><span class="badge" id="monthsBadge">-</span></div>
   </div>
   <div id="periodMsg"></div>
@@ -173,17 +173,27 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
     <div class="field"><label for="hours2">2학기 주당 수업시수</label><input type="number" id="hours2" step="0.01" min="0" max="40" placeholder="예: 18"></div>
     <div class="field"><label for="hm2">2학기 담임 개월 <span id="m2Max"></span></label><input type="number" id="hm2" min="0" max="6" step="1" value="0"></div>
   </div>
-  <p class="note">※ 진로진학·보건·상담·영양·사서교사: 평균 시수 (2026학년도 평균 시수 18.05시간) · 담임교사: 시수 + 1(창체시수)</p>
+  <p class="note">※ 진로진학·보건·상담·영양·사서교사: 평균 시수 (평균 시수 18.05시간) · 담임교사: 시수 + 1(창체시수)</p>
 </section>
 
 <section class="card">
   <h2>나. 다과목 지도 (상한 3.5점)</h2>
-  <p class="sub">기간별로 해당 항목과 개월을 입력하세요. 개월 합계가 인정 개월과 같아야 합니다. 학기별로 다르면 두 줄로 나눠 입력합니다.</p>
-  <div id="multiLock" class="status ok" style="display:none">비교과교사(보건·영양·사서·전문상담)는 기준안에 따라 3.3점이 자동 적용됩니다.</div>
-  <div id="multiEdit"><div id="seg-multi"></div>
-  <button class="ghost" data-add="multi">+ 기간 추가</button></div>
-  <p class="note">※ 평가: 지필평가와 이에 준하는 수행평가 · 1학년 1학기 주제선택/진로탐색/진로독서는 평가과목으로 인정</p>
-  <p class="note"><b>※ 복수의 스포츠클럽 담당교사의 경우</b> 강사채용이 아닌 과목을 담당했으면 <b>3.3점</b>을 고릅니다(예: 2과목 중 1과목은 강사채용, 1과목은 강사채용 아님 → 3.3점). 담당 과목이 모두 강사채용이면 3.2점입니다.</p>
+  <p class="sub">근무한 학기마다 평가 시행 과목 수와 스포츠클럽 담당 여부를 입력하세요. 1·2학기 과목 수를 합해 점수가 정해집니다.</p>
+  <div id="multiLock" class="status ok" style="display:none">비교과교사(보건·영양·사서·전문상담)는 기준안에 따라 3.25점이 자동 적용됩니다.</div>
+  <div id="multiEdit">
+    <div class="row" id="mRow1">
+      <div class="field"><label for="multi1">1학기 평가 시행 과목 수</label><input type="number" id="multi1" min="0" max="10" step="1" inputmode="numeric" placeholder="예: 2"></div>
+      <div class="field"><label for="club1">1학기 스포츠클럽</label><select id="club1"><option value="none">담당 없음</option><option value="yes">담당 (강사채용 아닌 종목 있음)</option><option value="inst">담당 (전부 강사채용)</option></select></div>
+    </div>
+    <div class="row" id="mRow2" style="margin-top:8px">
+      <div class="field"><label for="multi2">2학기 평가 시행 과목 수</label><input type="number" id="multi2" min="0" max="10" step="1" inputmode="numeric" placeholder="예: 1"></div>
+      <div class="field"><label for="club2">2학기 스포츠클럽</label><select id="club2"><option value="none">담당 없음</option><option value="yes">담당 (강사채용 아닌 종목 있음)</option><option value="inst">담당 (전부 강사채용)</option></select></div>
+    </div>
+    <div class="cnt" id="multiCnt"></div>
+  </div>
+  <p class="note">※ 평가: 지필평가와 이에 준하는 수행평가 · 같은 과목도 2개 학년을 지도하면 2과목 · 1학년 1학기 주제선택/진로탐색/진로독서는 평가과목으로 인정</p>
+  <p class="note">※ 스포츠클럽은 학기별 0.5과목으로 계산합니다. 맡은 스포츠클럽 전부에 강사를 채용한 학기는 인정하지 않습니다. · 1개 학기만 근무하면 과목 수를 ×2로 환산합니다.</p>
+  <p class="note">※ 판정: 1·2학기 합계 4과목 이상 3.5점 / 3과목 이상 3.25점 / 3과목 미만 3.0점</p>
 </section>
 
 <section class="card">
@@ -207,6 +217,7 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
   <p class="sub">기간별로 해당 역할과 개월을 입력하세요. 겸임 업무를 할 경우 상위 평가기준을 따릅니다(높은 점수 항목 선택).</p>
   <div id="seg-guide"></div>
   <button class="ghost" data-add="guide">+ 기간 추가</button>
+  <p class="note">※ 학년부 생활지도 담당교사: 학년당 3명, 학년 초 업무분장으로 지정</p>
 </section>
 
 <div class="subtotal" id="sub-3"></div>
@@ -256,7 +267,7 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
   <div id="comList"></div>
   <button class="ghost" id="comAdd">+ 위원회·공모사업 추가</button>
   <div class="cnt" id="comCnt"></div>
-  <p class="note">※ 아침 등교맞이 1개 인정 / 상조회 회장 2개, 총무 1개 인정 · 협의록 연 5회 이상 위원회 위원 및 간사 · 2026학년도 신설 공모사업 계획서·보고서 작성 제출자</p>
+  <p class="note">※ 아침 등교맞이 1개 인정 / 상조회 회장 2개, 총무 1개 인정 · 협의록 연 5회 이상 위원회 위원 및 간사 · 2027학년도 신설 공모사업 계획서·보고서 작성 제출자</p>
 </section>
 
 <div class="subtotal" id="sub-5"></div>
@@ -287,11 +298,11 @@ table.ev td.basis .rmk{display:block;margin-top:3px;color:#666;font-size:11px}
 /* ================= 설정 ================= */
 // 구글 Apps Script 웹앱 URL (배포 후 입력)
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpA1J_1jR0ckgnRygWzuH0HBMUigQX4QXSsW6oY0hMBJ3HJPt2nO6rYhrc55XAL-9q7A/exec"
-// 진로진학·보건·상담·영양·사서교사 평균 수업시수 (2026학년도)
+// 진로진학·보건·상담·영양·사서교사 평균 수업시수 — 2027학년도 확정 시 수정 (현재 2026학년도 값)
 const AVG_HOURS = 18.05;
 const GROUP_LABEL={subject:"교과",career:"진로진학",nonsubject:"비교과(교육지원청)"};
-const PERIOD_START = "2026-03-01", PERIOD_END = "2027-02-28";
-const SEM1_END = "2026-08-31", SEM2_START = "2026-09-01";   // 1학기 3.1.~8.31. / 2학기 9.1.~2.28.
+const PERIOD_START = "2027-03-01", PERIOD_END = "2028-02-28";
+const SEM1_END = "2027-08-31", SEM2_START = "2027-09-01";   // 1학기 3.1.~8.31. / 2학기 9.1.~2.28.
 
 // 동아리 운영 유형 (기준안 비고)
 const CLUB_TYPES = ["교육과정동아리","자율동아리","동아리 업무 담당자","전학공 대표","TF팀","교과 부장"];
@@ -314,9 +325,9 @@ const CRITERIA = {
   hours: { area:"학습지도(30점)", name:"수업시수", max:25, floor:22, prorate:true,
     rows:[["21시간 이상",25],["20.5시간 이상 - 21시간 미만",24.75],["20시간 이상 - 20.5시간 미만",24.5],["19.5시간 이상 - 20시간 미만",24.25],["19시간 이상 - 19.5시간 미만",24],["18.5시간 이상 - 19시간 미만",23.75],["18시간 이상 - 18.5시간 미만",23.5],["17.5시간 이상 - 18시간 미만",23.25],["17시간 이상 - 17.5시간 미만",23],["16.5시간 이상 - 17시간 미만",22.75],["16시간 이상 - 16.5시간 미만",22.5],["15.5시간 이상 - 16시간 미만",22.25],["15.5시간 미만",22]],
     remark:["진로진학·보건·상담·영양·사서교사: 평균 시수","담임교사: 시수+1(창체시수)"] },
-  multi: { area:"학습지도(30점)", name:"다과목 지도", max:3.5, floor:3.0, prorate:true,
-    rows:[["평가 시행 과목 2개 이상",3.5],["평가 시행 과목 1개 and 평가 미시행 과목 1개 이상",3.3],["스포츠클럽(강사채용 아닌 과목 포함)·보건·상담·영양·사서교사",3.3],["스포츠클럽(담당 과목 모두 강사채용)",3.2],["1개 과목 지도 (위에 해당하지 않는 교사)",3.0]],
-    remark:["평가: 지필평가와 이에 준하는 수행평가","1학년 1학기 주제선택·진로탐색·진로독서는 평가과목으로 인정","복수의 스포츠클럽 담당 시 강사채용이 아닌 과목이 있으면 3.3점, 모두 강사채용이면 3.2점"] },
+  multi: { area:"학습지도(30점)", name:"다과목 지도", max:3.5, prorate:false,
+    rows:[["1·2학기 합계 4과목 이상",3.5],["1·2학기 합계 3과목 이상 - 4과목 미만",3.25],["1·2학기 합계 3과목 미만",3.0]],
+    remark:["평가: 지필평가와 이에 준하는 수행평가","학기별 평가 시행 과목 수를 1·2학기 합산(같은 과목도 2개 학년이면 2과목)","1학년 1학기 주제선택·진로탐색·진로독서는 평가과목으로 인정","스포츠클럽 학기별 0.5과목(전부 강사채용인 학기는 미인정)","1개 학기만 근무 시 ×2 환산","보건·상담·영양·사서교사: 3.25점"] },
   open: { area:"학습지도(30점)", name:"수업공개", max:1.5, prorate:false,
     rows:[["교내외수업공개(제안수업)",1.5],["수업공유(학교교육계획)",1]],
     remark:["복수의 수업공개는 상위 점수만 인정","비교과교사: 홈페이지에 연 6회 이상 정보 탑재 시 제안수업으로 인정"] },
@@ -334,7 +345,7 @@ const CRITERIA = {
     remark:["학생지도: 교육과정동아리 / 자율동아리 / 동아리 업무 담당자","교사: 전학공 대표 / 각종 TF팀 / 교과 부장"] },
   committee: { area:"담당업무(30점)", name:"교육활동 기여도(위원회·공모사업)", max:1.5, prorate:false,
     rows:[["위원회(공모사업) 4개 이상 참여",1.5],["위원회(공모사업) 3개 참여",1.4],["위원회(공모사업) 2개 참여",1.3],["위원회(공모사업) 1개 참여",1.2],["위원회(공모사업) 참여 없음",1.1]],
-    remark:["아침 등교맞이 1개, 상조회 회장 2개·총무 1개 인정","협의록 연 5회 이상의 위원회 위원 및 간사","2026학년도 신설 공모사업 계획서 및 보고서 작성 제출자"] }
+    remark:["아침 등교맞이 1개, 상조회 회장 2개·총무 1개 인정","협의록 연 5회 이상의 위원회 위원 및 간사","2027학년도 신설 공모사업 계획서 및 보고서 작성 제출자"] }
 };
 const ORDER = ["hours","multi","open","guide","training","post","club","committee"];
 
@@ -376,8 +387,8 @@ function committeeRow(n){ return n>=4?0: n===3?1: n===2?2: n===1?3: 4; }
 
 /* ================= 화면 ================= */
 const $=id=>document.getElementById(id);
-const SEG_KEYS=["multi","guide","post"];
-const segState={ multi:[{idx:4,months:12}], guide:[{idx:2,months:12}], post:[{idx:3,months:12}] };
+const SEG_KEYS=["guide","post"];
+const segState={ guide:[{idx:2,months:12}], post:[{idx:3,months:12}] };
 let clubs=[];      // {type, name, term}
 let coms=[];       // {type, name, etc}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -442,7 +453,7 @@ function compute(){
   const start=$("start").value, end=$("end").value;
   let days=0, months=0;
   if(!start||!end) errors.push("근무 시작일과 종료일을 입력하세요.");
-  else if(start<PERIOD_START||end>PERIOD_END) errors.push("근무 기간은 2026. 3. 1. ~ 2027. 2. 28. 사이여야 합니다.");
+  else if(start<PERIOD_START||end>PERIOD_END) errors.push("근무 기간은 2027. 3. 1. ~ 2028. 2. 28. 사이여야 합니다.");
   else if(end<start) errors.push("종료일이 시작일보다 빠릅니다.");
   else { days=daysBetween(start,end); months=monthsFromDays(days);
     const need=twoMonthEnd(start);
@@ -484,13 +495,32 @@ function compute(){
 
   // 구간형 항목 (겸임·역할 변경 시 가중평균)
   for(const k of SEG_KEYS){
-    const segs=(k==="multi"&&group==="nonsubject") ? (months>0?[{idx:2,months}]:[]) : segState[k].filter(s=>s.months>0);
+    const segs=segState[k].filter(s=>s.months>0);
     const sum=segs.reduce((a,s)=>a+s.months,0);
     if(months>0 && sum!==months) errors.push(`${CRITERIA[k].name}: 입력한 개월 합계(${sum})가 인정 개월(${months})과 다릅니다.`);
     if(months>0){
       res[k]=prorate(k,segs); hits[k]=segs.map(s=>s.idx);
       const c=CRITERIA[k];
       basis[k]= segs.length>1 ? segs.map(s=>`${c.rows[s.idx][1]}×${s.months}개월`).join(", ") + ` → (` + segs.map(s=>`${c.rows[s.idx][1]}×${s.months}`).join(" + ") + `) ÷ ${months}` : (segs.length? `${c.rows[segs[0].idx][1]} (${months}개월)` : "");
+    }
+  }
+
+  // 다과목 지도 (1·2학기 평가 시행 과목 합계, 스포츠클럽 0.5과목, 1개 학기 근무 시 ×2)
+  let multiInfo=null;
+  if(months>0){
+    if(group==="nonsubject"){ res.multi=3.25; hits.multi=[1]; basis.multi="비교과교사 3.25점"; }
+    else {
+      const {m1,m2}=termMonths(start,end); const parts=[]; let sum=0, sems=0, ok=true;
+      [[1,m1,"multi1","club1"],[2,m2,"multi2","club2"]].forEach(([t,m,mk,ck])=>{ if(m<=0) return; sems++;
+        const v=$(mk).value; if(v===""){ errors.push(`다과목 지도: ${t}학기 평가 시행 과목 수를 입력하세요.`); ok=false; return; }
+        const n=Math.max(0,Math.floor(+v)); const cl=$(ck).value==="yes"?0.5:0; sum+=n+cl;
+        parts.push(`${t}학기 ${n}과목`+(cl?" + 스포츠클럽 0.5":"")+($(ck).value==="inst"?" (스포츠클럽 전부 강사채용, 미인정)":"")); });
+      if(ok&&sems>0){
+        const U=sems===1?sum*2:sum; const idx=U>=4?0:U>=3?1:2;
+        res.multi=CRITERIA.multi.rows[idx][1]; hits.multi=[idx];
+        basis.multi=parts.join(" / ")+(sems===1?` → 1개 학기 근무 ×2 = ${fmt(U)}과목`:` → 합계 ${fmt(U)}과목`);
+        multiInfo={sum,U,sems};
+      }
     }
   }
 
@@ -546,13 +576,13 @@ function compute(){
   total=round2(total);
   const complete=ORDER.every(k=>rounded[k]!==undefined);
   return {name,group,start,end,days,months,hours:hoursOut,homeroomMonths:hm,rounded,basis,hits,total,complete,errors,warns,
-    training:{base:trBase,research:$("tr1").checked,cert:certN,book:bookN,extra,total:trTotal,converted:trConv}, committee:cn, segs:JSON.parse(JSON.stringify(segState)),
+    training:{base:trBase,research:$("tr1").checked,cert:certN,book:bookN,extra,total:trTotal,converted:trConv}, committee:cn, multi:multiInfo, segs:JSON.parse(JSON.stringify(segState)),
     clubs:JSON.parse(JSON.stringify(clubs)), coms:JSON.parse(JSON.stringify(coms))};
 }
 
 function renderSheet(r){
-  let html=`<h3>2026학년도 옥빛중학교 다면평가(정량평가) 개인 평가표</h3>
-  <div class="meta"><span>평가대상 기간: 2026. 3. 1. ~ 2027. 2. 28.</span>
+  let html=`<h3>2027학년도 옥빛중학교 다면평가(정량평가) 개인 평가표</h3>
+  <div class="meta"><span>평가대상 기간: 2027. 3. 1. ~ 2028. 2. 28.</span>
   <span>근무기간: ${r.start||"-"} ~ ${r.end||"-"} (${r.days}일, 인정 ${r.months}개월)</span></div>
   <table class="ev"><colgroup><col class="c-area"><col class="c-ind"><col class="c-max"><col class="c-crit"><col class="c-pt"><col class="c-sc"><col class="c-basis"></colgroup><thead><tr><th>평가<br>요소</th><th>평가<br>지표</th><th>상한<br>점</th><th>평가 기준</th><th>배점</th><th>득점</th><th>산출 근거</th></tr></thead><tbody>`;
   const areaSpan={}; ORDER.forEach(k=>{ const a=CRITERIA[k].area; areaSpan[a]=(areaSpan[a]||0)+CRITERIA[k].rows.length; });
@@ -581,10 +611,12 @@ function update(){
   $("splitWrap").style.display=g==="subject"?"":"none";
   const sp=g==="subject"&&$("hoursSplit").checked; $("hoursOne").style.display=sp?"none":""; $("hmOne").style.display=sp?"none":"";
   { let a=sp,b=sp; const st=$("start").value, en=$("end").value; if(sp&&st&&en&&en>=st){ const {m1,m2}=termMonths(st,en); a=m1>0; b=m2>0; $("m1Max").textContent=`(최대 ${m1})`; $("m2Max").textContent=`(최대 ${m2})`; } $("semRow1").style.display=a?"":"none"; $("semRow2").style.display=b?"":"none"; }
+  { const st=$("start").value, en=$("end").value; let a=true,b=true; if(st&&en&&en>=st){ const {m1,m2}=termMonths(st,en); a=m1>0; b=m2>0; } $("mRow1").style.display=a?"":"none"; $("mRow2").style.display=b?"":"none"; }
   $("multiLock").style.display=g==="nonsubject"?"":"none";
   $("multiEdit").style.display=g==="nonsubject"?"none":"";
   const r=compute();
   { const n=clubs.filter(c=>c.type).length; $("clubCnt").textContent=r.rounded.club!==undefined?`→ ${n?n+"개 입력":"해당 없음"} · ${r.rounded.club.toFixed(2)}점`:""; }
+  $("multiCnt").textContent=(g!=="nonsubject"&&r.multi)?`→ ${r.multi.sems===1?"1개 학기 ×2 환산 ":"합계 "}${fmt(r.multi.U)}과목 · ${r.rounded.multi.toFixed(2)}점`:"";
   $("comCnt").textContent=`→ ${r.committee}개 · ${r.rounded.committee.toFixed(2)}점`;
   $("monthsBadge").textContent=r.months?`${r.months}개월 (${r.days}일)`:"-";
   $("periodMsg").innerHTML="";
@@ -596,8 +628,8 @@ function update(){
 }
 
 /* 임시 저장 (이 브라우저에만) */
-const DRAFT_KEY="okbit-dagmyeon-2026";
-const FIELDS=["name","group","start","end","hours","homeroomMonths","hours1","hours2","hm1","hm2","training","tr2","tr3"];
+const DRAFT_KEY="okbit-dagmyeon-2027";
+const FIELDS=["name","group","start","end","hours","homeroomMonths","hours1","hours2","hm1","hm2","multi1","multi2","club1","club2","training","tr2","tr3"];
 function saveDraft(){ try{ const d={segState,clubs,coms}; FIELDS.forEach(f=>d[f]=$(f).value); d.tr1=$("tr1").checked; d.hoursSplit=$("hoursSplit").checked; d.open=document.querySelector('input[name="open"]:checked').value; localStorage.setItem(DRAFT_KEY,JSON.stringify(d)); }catch(e){} }
 function loadDraft(){ try{ const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null"); if(!d)return; FIELDS.forEach(f=>{ if(d[f]!==undefined)$(f).value=d[f]; }); $("tr1").checked=!!d.tr1; $("hoursSplit").checked=!!d.hoursSplit; ["tr2","tr3"].forEach(f=>{ if(typeof d[f]!=="string")$(f).value=0; }); const o=document.querySelector(`input[name="open"][value="${d.open}"]`); if(o)o.checked=true; if(d.segState) SEG_KEYS.forEach(k=>{ if(Array.isArray(d.segState[k])&&d.segState[k].length) segState[k]=d.segState[k]; }); if(Array.isArray(d.clubs)) clubs=d.clubs; if(Array.isArray(d.coms)) coms=d.coms; }catch(e){} }
 
@@ -611,7 +643,7 @@ $("submitBtn").onclick=async()=>{
   if(!confirm(`${r.name} 선생님, 총점 ${fmtScore(r.total)}점으로 제출합니다.\n같은 이름으로 다시 제출하면 기존 제출 내용이 덮어쓰기 됩니다.`)) return;
   const payload={name:r.name,group:GROUP_LABEL[r.group],start:r.start,end:r.end,days:r.days,months:r.months,
     hours:r.hours,homeroomMonths:r.homeroomMonths,scores:r.rounded,total:r.total,basis:r.basis,
-    detail:{segs:r.segs,training:r.training,committee:r.committee,open:r.rounded.open,clubs:r.clubs,coms:r.coms}};
+    detail:{multi:r.multi,segs:r.segs,training:r.training,committee:r.committee,open:r.rounded.open,clubs:r.clubs,coms:r.coms}};
   $("submitBtn").disabled=true; msg.innerHTML=`<div class="status ok">제출 중…</div>`;
   try{
     const resp=await fetch(SCRIPT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
